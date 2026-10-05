@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { withOpenAIFinalAnswer } from '../src/openai-final-answer.ts';
 import { schemas } from '../src/types.ts';
 
-const card = { id: 'chart-trends', type: 'chart', html: '<div>Trends</div>', script: '' };
+const card = { html: '<div>Trends</div>', script: '' };
 const header = {
 	id: 'overview', type: 'header', title: 'Overview', description: 'Test dashboard',
 	usesData: false, dataRequest: '', requiredTables: [],
@@ -79,7 +79,7 @@ test('the Casai element renderer parses the final card using the real template',
 		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
 		prompt: 'element-renderer.md', output: 'object', schema: schemas.renderedElement,
 	});
-	assert.deepEqual((await renderer({ elementType: card.type, elementJson: JSON.stringify(card) })).object, card);
+	assert.deepEqual((await renderer({ elementType: 'chart', elementJson: JSON.stringify({ id: 'chart-trends', type: 'chart' }) })).object, card);
 });
 
 test('SQL and HTML text consumers receive only the final answer', async () => {
@@ -130,7 +130,7 @@ test('the dashboard orchestrator completes with commentary in planners and the r
 			model: withOpenAIFinalAnswer(mockModel(mixedOutput(JSON.stringify({ elements })))),
 			loader, prompt, output: 'array', schema,
 		});
-	const renderedHeader = { ...card, id: 'header-overview', type: 'header', html: '<header>Overview</header>' };
+	const renderedHeader = { html: '<header>Overview</header>', script: '' };
 	const renderer = create.ObjectGenerator.loadsTemplate({
 		model: withOpenAIFinalAnswer(mockModel(mixedOutput(JSON.stringify(renderedHeader)))),
 		loader, prompt: 'element-renderer.md', output: 'object', schema: schemas.renderedElement,
@@ -149,5 +149,5 @@ test('the dashboard orchestrator completes with commentary in planners and the r
 			schemaSummary: 'No data needed.',
 		},
 	});
-	assert.deepEqual(await processor({}), [{ ...header, id: renderedHeader.id, html: renderedHeader.html, script: '' }]);
+	assert.deepEqual(await processor({}), [{ ...header, id: 'header-overview', html: renderedHeader.html, script: '' }]);
 });

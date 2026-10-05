@@ -71,7 +71,27 @@
 				</div>
 {% else %}
 				<template data-dashboard-element-template="{{ element.id | escape }}">
+{% if element.type == "header" %}
 {{ element.html | safe }}
+{% else %}
+					<div class="card h-100">
+						<div class="card-body">
+{% if element.type == "metric" %}
+							<h6 class="card-title fw-semibold mb-1">{{ element.title | escape }}</h6>
+{% else %}
+							<h5 class="card-title fw-semibold mb-1">{{ element.title | escape }}</h5>
+{% endif %}
+{% if element.type != "text" %}
+							<p class="text-muted small {{ "mb-0" if element.type == "metric" else "mb-3" }}">{{ element.description | escape }}</p>
+{% endif %}
+{% if element.type == "insight" %}
+{{ element.contentHtml | safe }}
+{% else %}
+{{ element.html | safe }}
+{% endif %}
+						</div>
+					</div>
+{% endif %}
 				</template>
 {% endif %}
 			</div>

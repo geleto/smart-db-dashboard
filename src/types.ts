@@ -30,9 +30,7 @@ export const schemas = {
 		type: z.enum(['insight', 'text']),
 	}),
 	renderedElement: z.object({
-		id: z.string(),
-		type: z.enum(['header', 'metric', 'chart', 'table', 'text', 'insight', 'other']),
-		html: z.string().describe('HTML fragment with no row/column wrapper'),
+		html: z.string().describe('HTML content fragment with no card/row/column wrapper'),
 		script: z.string().describe('Raw JavaScript statements to run inside an existing DOMContentLoaded listener. Use an empty string if none.'),
 	}),
 	processedElement: processedElementSchema,

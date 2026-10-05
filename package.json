@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test tests/openai-final-answer.test.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
     "clean": "node scripts/clean.mjs"
   },
   "author": "Angel Popov",

@@ -48,14 +48,16 @@ function processElement(element)
 			}).text
 		endif
 	endif
-	// Render the card: the LLM emits the HTML/JS fragment (runs for every card)
-	var renderedElement = elementRenderer({
-		elementType: element.type,
-		elementJson: toJson(element)
-	}).object
-	// Attach the rendered fragment and the data the final page will render.
-	element.html = renderedElement.html
-	element.script = renderedElement.script.trim()
+	// Render the body: insight HTML is already complete.
+	if element.type != "insight"
+		var renderedElement = elementRenderer({
+			elementType: element.type,
+			elementJson: toJson(element)
+		}).object
+		element.html = renderedElement.html
+		element.script = renderedElement.script.trim()
+	endif
+	// Attach the data the final page will render.
 	if element.usesData
 		element.dataJson = toJson(element.id) ~ ": " ~ toJson(rows)
 	endif

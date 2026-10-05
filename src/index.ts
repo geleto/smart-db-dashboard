@@ -15,7 +15,7 @@
  * 3. Process each card as it streams - for a data card: narrow the schema to the
  *    tables it needs, generate and run SQL, repair a failed/empty query
  *    (escalate the model, then widen the schema), and for insight cards write the
- *    takeaway; every card is then rendered into an HTML/JS fragment
+ *    takeaway; other cards are rendered into HTML/JS content fragments
  * 4. Compose the page (no AI) - deterministic TypeScript arranges the fragments
  *    and adds shared helpers/data
  *
@@ -155,7 +155,7 @@ const textInsightGenerator = create.TextGenerator.loadsTemplate({
 });
 
 // ---------------------------------------------------------------------------
-// Element renderer - renders one enriched element into HTML and JS.
+// Element renderer - renders content into HTML and JS; the page supplies card markup.
 // ---------------------------------------------------------------------------
 const elementRenderer = create.ObjectGenerator.loadsTemplate({
 	model: basicModel,
