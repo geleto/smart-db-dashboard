@@ -43,7 +43,7 @@ export const basicProviderOptions = {
 const advancedModelOptions = {
 	haiku: {
 		model: anthropic('claude-haiku-4-5'),
-		label: 'Claude-4.5-Haiku (advanced, reasoning: none)',
+		label: 'Claude-4.5-Haiku (no reasoning)',
 		pricing: modelPricing.claude45Haiku,
 		providerOptions: {
 			anthropic: {
@@ -53,7 +53,7 @@ const advancedModelOptions = {
 	},
 	'gpt-luna': {
 		model: withOpenAIFinalAnswer(openai.responses('gpt-6-luna')),
-		label: `GPT-6-Luna (advanced, reasoning: ${advancedReasoningEffort})`,
+		label: `GPT-6-Luna (reasoning: ${advancedReasoningEffort})`,
 		pricing: modelPricing.gpt6Luna,
 		providerOptions: {
 			openai: {
@@ -70,7 +70,7 @@ export const advancedProviderOptions = advancedModelSettings.providerOptions;
 
 export const basicModel = withProgressIndicator(
 	withOpenAIFinalAnswer(openai.responses('gpt-6-luna')),
-	`GPT-6-Luna (basic, reasoning: ${basicReasoningEffort})`,
+	`GPT-6-Luna (reasoning: ${basicReasoningEffort})`,
 	showProgressIndicators,
 	modelPricing.gpt6Luna
 );

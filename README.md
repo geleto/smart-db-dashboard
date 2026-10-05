@@ -65,8 +65,8 @@ scripts, and ZIP archives, and are cached in `src/database/`.
 
 The original logging is retained: scenario and schema details, downloads,
 executed SQL, dashboard plans, model progress, timing, tokens, estimated cost,
-and aggregate call statistics. Basic and advanced calls have separate labels
-including the reasoning level so their timing and costs can be compared. The
+and aggregate call statistics. Calls are grouped by model and reasoning level
+so their timing and costs can be compared. The
 Total row uses the same statistics as each model row; their times are summed
 call durations. The final line reports dashboard generation time and estimated
 total cost. `database.prepare()` ensures the local file is ready, reusing an
