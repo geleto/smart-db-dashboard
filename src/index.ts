@@ -1,34 +1,9 @@
 /**
- * SMART DB DASHBOARD - FROM A PLAIN-ENGLISH QUESTION TO A FULL DASHBOARD
- *
- * Give the agent a plain-English request ("help me improve our sales") and a
- * SQLite database, and it builds a full interactive HTML dashboard - metrics,
- * charts, tables, and written insights. It plans what to show, then executes
- * that plan card by card. The job is split into small steps, each handed to the
- * cheapest model that can do it, and independent steps run concurrently.
- *
- * STEPS (see orchestrator.cas for the flow):
- * 1. Summarize the schema (no AI) - inspect the SQLite DB into a compact summary
- *    that grounds every prompt
- * 2. Plan the layout - three planners run in parallel (header+metrics,
- *    charts+tables, insights+text) and stream cards as they decide them
- * 3. Process each card as it streams - for a data card: narrow the schema to the
- *    tables it needs, generate and run SQL, repair a failed/empty query
- *    (escalate the model, then widen the schema), and for insight cards write the
- *    takeaway; other cards are rendered into HTML/JS content fragments
- * 4. Compose the page (no AI) - deterministic TypeScript arranges the fragments
- *    and adds shared helpers/data
- *
- * KEY IDEAS:
- * - Concurrent by default: Cascada runs independent planners, queries, and
- *   renders at the same time (~6-7 prompts in flight) with no async plumbing
- * - Cheap-first models: a cheap model drafts SQL and renders HTML; a stronger
- *   model only plans, repairs SQL, and writes insights
- * - Tool-style execution: the LLM writes the SQL, the database runs it
- * - Repair loop + progressive fallback: retry failed/empty queries, then degrade
- *   gracefully with an error note instead of breaking the page
- * - Structured output: Zod schemas keep planned and rendered cards typed
- * - Orchestration: the whole flow is one small Cascada script (orchestrator.cas)
+ * Turn a plain-English SQLite question into an interactive dashboard.
+ * Three planners stream cards concurrently; orchestrator.cas fetches their data
+ * with cheap SQL drafts and stronger-model repairs. Metrics use shared markup,
+ * insights produce HTML directly, and other cards get generated HTML/JS.
+ * This file wires the generators and composes, saves, and opens the final page.
  */
 
 import { spawn } from 'child_process';
@@ -41,6 +16,7 @@ import path from 'path';
 import { createSchemaMetadataForTables, Database } from './Database';
 import { schemas } from './types';
 import type { types } from './types';
+import { formatMetric } from './metric';
 
 import inputJson from './input.json';
 const inputFile: types.PlanningInputFile = inputJson;
@@ -172,6 +148,7 @@ const elementRenderer = create.ObjectGenerator.loadsTemplate({
 const dashboardTemplate = create.Template.loadsTemplate({
 	loader: templateLoader,
 	template: 'dashboard-template.html',
+	context: { formatMetric },
 });
 
 const schemaSummaryTemplate = create.Template.loadsTemplate({
@@ -192,20 +169,11 @@ const dashboardProcessor = create.Script.loadsScript({
 		sqlRepairGenerator,
 		textInsightGenerator,
 		elementRenderer,
+		metricRowsSchema: schemas.metricRows,
 		schemaSummaryTemplate,
-		generatePreviewJson: (rows: any[], rowLimit = 5) => {
-			if (!Array.isArray(rows)) {
-				return JSON.stringify([rows], null, 2);
-			} else if (rows.length <= rowLimit) {
-				return JSON.stringify(rows, null, 2);
-			} else {
-				const truncated = rows.slice(0, rowLimit);
-				const json = JSON.stringify(truncated, null, 2);
-				return json.replace(
-					/\n\]$/,
-					`,\n   ... ${rows.length - rowLimit} more items\n]`
-				);
-			}
+		generatePreviewJson: (rows: unknown[], rowLimit = 5) => {
+			const json = JSON.stringify(rows.slice(0, rowLimit), null, 2);
+			return rows.length > rowLimit ? `${json}\n... ${rows.length - rowLimit} more rows` : json;
 		},
 		toJson: (value: unknown) => JSON.stringify(value, null, 2),
 		normalizeElementId,

@@ -35,17 +35,14 @@
 			max-height: 360px;
 			overflow: auto;
 		}
-		.dashboard-element-metric .metric-value-number {
+		.dashboard-element-metric .metric-value {
 			display: block;
 			margin-top: 0.75rem;
-			font-size: 2.5rem !important;
-			font-weight: 700 !important;
+			font-size: 2.5rem;
+			font-weight: 700;
 			line-height: 1.1;
 		}
-		.dashboard-element-header + .dashboard-element-metric .metric-value-number {
-			font-size: 3rem !important;
-		}
-		.dashboard-element-metric [id$="-label"] {
+		.dashboard-element-metric .metric-label {
 			margin-top: 0.25rem;
 			color: var(--bs-secondary-color);
 			font-size: 0.875rem;
@@ -84,7 +81,12 @@
 {% if element.type != "text" %}
 							<p class="text-muted small {{ "mb-0" if element.type == "metric" else "mb-3" }}">{{ element.description | escape }}</p>
 {% endif %}
-{% if element.type == "insight" %}
+{% if element.type == "metric" %}
+							<div class="metric-value">{{ formatMetric(element.metric) | escape }}</div>
+{% if element.metric.label %}
+							<div class="metric-label">{{ element.metric.label | escape }}</div>
+{% endif %}
+{% elif element.type == "insight" %}
 {{ element.contentHtml | safe }}
 {% else %}
 {{ element.html | safe }}

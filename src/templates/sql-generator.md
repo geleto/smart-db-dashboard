@@ -10,8 +10,7 @@ Rules:
 - Prefer small result sets suitable for previews; use `LIMIT` where appropriate.
 
 {% if elementType == "metric" %}
-Metric:
-- Return exactly one row with one headline value: one aggregate row, or `ORDER BY` the main metric with `LIMIT 1` for a top category plus its numeric measure. No grouped category comparisons.
+{% include "metric-query.md" %}
 {% elif elementType == "chart" %}
 Chart:
 - For group comparisons, return one row per displayed group via `GROUP BY` (or an equivalent CTE/subquery), aggregating every metric; never raw rows with repeated labels.

@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { create, FileSystemLoader } from 'casai';
+import Sqlite from 'better-sqlite3';
+import { Database } from '../src/Database.ts';
+import { formatMetric } from '../src/metric.ts';
 import { schemas } from '../src/types.ts';
 import type { types } from '../src/types.ts';
 
@@ -40,7 +43,8 @@ for (const succeeds of [true, false]) {
 		if (succeeds) {
 			assert.deepEqual(calls, { sql: 1, repair: 0, insight: 1, render: 0 });
 			assert.equal(element.contentHtml, contentHtml);
-			assert.equal(element.dataJson, '"insight-regional-revenue": ' + JSON.stringify(rows));
+			assert.equal(element.dataJson, undefined);
+			assert.equal(element.previewJson, undefined);
 			assert.equal(element.queryError, undefined);
 		} else {
 			assert.deepEqual(calls, { sql: 1, repair: 2, insight: 0, render: 0 });
@@ -57,7 +61,7 @@ test('the page wraps card content once, escapes headings, and preserves insight 
 	});
 	const elements = [
 		element('header', 'Overview', { html: '<header><h1>Overview</h1></header>', script: '' }),
-		element('metric', 'Revenue & <margin>', { html: '<div id="metric-test-value" class="metric-value-number"></div>', script: 'document.getElementById("metric-test-value").textContent = "400";' }),
+		element('metric', 'Revenue & <margin>', { metric: { value: 400, label: 'North & <West>' } }),
 		element('chart', 'Regional revenue', { html: '<div style="height:300px"><canvas id="chart-test-canvas"></canvas></div>' }),
 		element('table', 'Top customers', { html: '<table><tbody id="table-test-body"></tbody></table>' }),
 		element('insight', 'Findings', { contentHtml }),
@@ -68,6 +72,7 @@ test('the page wraps card content once, escapes headings, and preserves insight 
 	const template = create.Template.loadsTemplate({
 		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
 		template: 'dashboard-template.html',
+		context: { formatMetric },
 	});
 	const html = await template({ elements });
 	assert.equal((html.match(/<div class="card h-100\b/g) ?? []).length, 7);
@@ -80,6 +85,92 @@ test('the page wraps card content once, escapes headings, and preserves insight 
 	assert(html.includes('no such column: &lt;revenue&gt;'));
 	assert(html.includes('card-title fw-semibold mb-1">Revenue &amp; &lt;margin&gt;</h6>'));
 	assert(html.includes('card-title fw-semibold mb-1">Regional revenue</h5>'));
-	assert.equal((html.match(/id="metric-test-value"/g) ?? []).length, 1);
+	assert.equal((html.match(/class="metric-value"/g) ?? []).length, 1);
+	assert(html.includes('class="metric-value">400</div>'));
+	assert(html.includes('class="metric-label">North &amp; &lt;West&gt;</div>'));
 	assert.equal(html.split('Use the charts to compare regions.').length - 1, 1);
+});
+
+test('metric formatting preserves zero, missing values, text, precision, currency, and percentage scale', () => {
+	assert.equal(formatMetric({ value: 0 }), '0');
+	assert.equal(formatMetric({ value: null, suffix: '%' }), '-');
+	assert.equal(formatMetric({ value: 'No records' }), 'No records');
+	assert.equal(formatMetric({ value: 1220 }), new Intl.NumberFormat().format(1220));
+	assert.equal(formatMetric({ value: 1.225, decimals: 2 }), new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(1.225));
+	assert.equal(formatMetric({ value: 1234.5, currency: 'GBP' }), new Intl.NumberFormat(undefined, { style: 'currency', currency: 'GBP' }).format(1234.5));
+	assert.equal(formatMetric({ value: 12.345, decimals: 1, suffix: '%' }), new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(12.345) + '%');
+});
+
+for (const scenario of [
+	{ name: 'a record with a secondary label', sql: "SELECT 116 AS value, 'Chicago Cubs · 1906' AS label", repairs: 0, metric: { value: 116, label: 'Chicago Cubs · 1906' } },
+	{ name: 'a zero without a label', sql: 'SELECT 0 AS value', repairs: 0, metric: { value: 0 } },
+	{ name: 'a null aggregate', sql: 'SELECT NULL AS value', repairs: 0, metric: { value: null } },
+	{ name: 'a repair after an incorrect alias', sql: 'SELECT 116 AS wins', repairs: 1, metric: { value: 116 } },
+	{ name: 'a repair after multiple rows', sql: 'SELECT 116 AS value UNION ALL SELECT 100', repairs: 1, metric: { value: 116 } },
+	{ name: 'a repair after invalid formatting', sql: "SELECT 116 AS value, 'two' AS decimals", repairs: 1, metric: { value: 116 } },
+	{ name: 'a repair after a misspelled context alias', sql: "SELECT 116 AS value, 'Cubs' AS team_name", repairs: 1, metric: { value: 116 } },
+	{ name: 'an unrepaired invalid result', sql: 'SELECT 116 AS wins', repairs: 2, metric: undefined },
+]) {
+	test(`KPI processing handles ${scenario.name} without a renderer call`, async () => {
+		const sqlite = new Sqlite(':memory:');
+		const database = new Database('Test', 'Test database', '');
+		database.getDb = () => sqlite;
+		const calls = { sql: 0, repair: 0 };
+		const processor = create.Script.loadsScript({
+			loader: new FileSystemLoader(fileURLToPath(new URL('../src', import.meta.url))),
+			script: 'orchestrator.cas', schema: schemas.processedDashboard,
+			context: {
+				headerMetricPlanner: () => ({ elementStream: [{
+					id: 'wins', type: 'metric', title: 'Most wins', description: 'The single-season record.',
+					usesData: true, dataRequest: 'Find the season wins record.', requiredTables: ['Teams'],
+				}] }),
+				visualPlanner: () => ({ elementStream: [] }), insightTextPlanner: () => ({ elementStream: [] }),
+				sqlFromRequestGenerator: () => { calls.sql++; return { text: scenario.sql }; },
+				sqlRepairGenerator: ({ failureReason }: { failureReason: string }) => {
+					calls.repair++;
+					assert.match(failureReason, /value|array|decimals|team_name/i);
+					return { text: scenario.metric ? 'SELECT 116 AS value' : scenario.sql };
+				},
+				elementRenderer: () => assert.fail('KPIs must not call the renderer'),
+				database, metricRowsSchema: schemas.metricRows,
+				schemaMetadataForTables: () => ({}), schemaSummaryTemplate: () => 'Teams: W, name, yearID',
+				toJson: JSON.stringify, normalizeElementId: (type: string, id: string) => `${type}-${id}`,
+				datasetName: 'Test', datasetDescription: 'Test baseball', userRequest: 'Show records.', schemaSummary: 'Teams: W, name, yearID',
+			},
+		});
+		try {
+			const [element] = await processor({});
+			assert.deepEqual(calls, { sql: 1, repair: scenario.repairs });
+			assert.deepEqual(element.metric, scenario.metric);
+			assert.equal(element.html, undefined);
+			assert.equal(element.script, undefined);
+			assert.equal(element.dataJson, undefined);
+			assert.equal(element.previewJson, undefined);
+			assert.equal(Boolean(element.queryError), !scenario.metric);
+		} finally {
+			database.close();
+		}
+	});
+}
+
+test('the shared KPI markup escapes text and omits absent secondary labels', async () => {
+	const template = create.Template.loadsTemplate({
+		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
+		template: 'dashboard-template.html', context: { formatMetric },
+	});
+	const elements = [
+		{ value: 0 },
+		{ value: null, label: null },
+		{ value: '<record>', label: '<Cubs> & 1906' },
+	].map((metric, index): types.LayoutElement => ({
+		id: `metric-${index}`, type: 'metric', title: 'Record', description: 'Archive headline',
+		usesData: true, dataRequest: 'Find records', requiredTables: ['Teams'], columnClass: 'col-12', metric,
+	}));
+	const html = await template({ elements });
+	assert(html.includes('class="metric-value">0</div>'));
+	assert(html.includes('class="metric-value">-</div>'));
+	assert(html.includes('class="metric-value">&lt;record&gt;</div>'));
+	assert.equal((html.match(/class="metric-label"/g) ?? []).length, 1);
+	assert(html.includes('&lt;Cubs&gt; &amp; 1906'));
+	assert(!html.includes('"metric-0":'));
 });

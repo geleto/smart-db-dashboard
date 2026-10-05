@@ -1,5 +1,13 @@
 import { z } from 'casai';
 
+const metricSchema = z.object({
+	value: z.union([z.number().finite(), z.string()]).nullable(),
+	label: z.string().nullable().optional(),
+	decimals: z.number().int().min(0).max(20).nullable().optional(),
+	currency: z.string().regex(/^[A-Z]{3}$/).nullable().optional(),
+	suffix: z.string().nullable().optional(),
+}).strict();
+
 const dashboardElementSchema = z.object({
 	id: z.string().describe('Unique identifier for the element'),
 	type: z.enum(['header', 'metric', 'chart', 'table', 'text', 'insight', 'other']).describe('Type of dashboard element'),
@@ -11,6 +19,7 @@ const dashboardElementSchema = z.object({
 });
 
 const processedElementSchema = dashboardElementSchema.extend({
+	metric: metricSchema.optional(),
 	previewJson: z.string().optional(),
 	contentHtml: z.string().optional(),
 	queryError: z.string().optional(),
@@ -20,6 +29,7 @@ const processedElementSchema = dashboardElementSchema.extend({
 });
 
 export const schemas = {
+	metricRows: z.array(metricSchema).length(1),
 	headerMetricElement: dashboardElementSchema.extend({
 		type: z.enum(['header', 'metric']),
 	}),
@@ -38,6 +48,8 @@ export const schemas = {
 };
 
 export namespace types {
+	export type Metric = z.infer<typeof metricSchema>;
+
 	export interface PlanningScenario {
 		name: string;
 		userRequest: string;

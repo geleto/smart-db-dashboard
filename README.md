@@ -42,6 +42,10 @@ The dashboard is saved to `src/dashboard.html` and opens in your default browser
 On Linux, automatic opening uses `xdg-open`. If it is unavailable or you are
 running without a desktop, open the generated HTML file in a browser manually.
 
+KPIs use one shared layout: titles and descriptions come from planning, while
+SQL supplies the value, optional secondary label, and any currency, precision,
+or unit formatting. They require no separate HTML/JavaScript generation call.
+
 ## Example dashboards
 
 Open these saved dashboards in a browser to explore sample output without

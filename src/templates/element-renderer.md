@@ -3,7 +3,7 @@ Render one dashboard element. Return JSON with `html` (one root fragment, no row
 Rules:
 - Never output `<body>`, `<script>` tags, imports, comments, or `window.dashboardData`.
 - No Markdown or code fences inside `html` or `script`.
-- Use DOM ids derived from the element id (e.g. `-value`, `-table-body`, `-canvas`). The outer template already uses the element id; do not reuse it inside the fragment.
+- Use DOM ids derived from the element id (e.g. `-table-body`, `-canvas`). The outer template already uses the element id; do not reuse it inside the fragment.
 {% if elementType != "header" and elementType != "text" %}
 - `script` is raw JS with real line breaks (no literal `\n`/`\r\n`/`\t`), run after DOMContentLoaded in an isolated function. Do not call `document.addEventListener`, `window.onload`, or wrap it in an IIFE.
 - Call these provided helpers directly (do not redefine them or write fallbacks): `getData(key)`, `firstRow(key)`, `formatCurrency(value)`, `formatNumber(value, maximumFractionDigits)`, `formatPercent(value)`, `escapeHtml(value)`.
@@ -17,11 +17,6 @@ The page supplies the card wrapper, title{% if elementType != "text" %}, and des
 
 {% if elementType == "header" %}
 Header: a richer page header, not a card. One root `<header>` or `<div>`, title as the main heading, description as supporting copy, `script: ""`. No data findings or recommendations.
-{% elif elementType == "metric" %}
-Metric:
-- Render the value as the largest/boldest text. No icons or inline font-size.
-- Script reads the first row from `getData("<id>")` into a placeholder whose id ends `-value`. Numeric values use class `metric-value-number` (the template sizes them).
-- If a metric has both a name and a number, put the number in `-value` (with `metric-value-number`) and the name in a small muted `-label`; do not join them with a dash.
 {% elif elementType == "chart" %}
 Chart:
 - Include a fixed-height canvas wrapper `<div style="position: relative; height: 300px; width: 100%;"><canvas ...></canvas></div>` (use 360px–480px for horizontal bars with many labels).

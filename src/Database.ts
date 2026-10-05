@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { unzipSync } from 'fflate';
+import type { z } from 'casai';
 
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SQLITE_HEADER = Buffer.from('SQLite format 3\0', 'ascii');
@@ -196,13 +197,14 @@ export class Database {
 		};
 	}
 
-	tryExecuteSql(sql: string): SqlExecutionResult {
+	tryExecuteSql(sql: string, resultSchema?: z.ZodType<unknown[]> | null): SqlExecutionResult {
 		console.log(`[Database] Executing SQL:\n${sql}\n`);
 		const db = this.getDb();
 		try {
+			const rows = db.prepare(sql).all();
 			return {
 				ok: true,
-				rows: db.prepare(sql).all() as unknown[],
+				rows: resultSchema ? resultSchema.parse(rows) : rows,
 			};
 		} catch (err: unknown) {
 			const errorMessage = err instanceof Error ? err.message : String(err);

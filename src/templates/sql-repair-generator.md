@@ -15,7 +15,7 @@ Rules:
 - Prefer small result sets; use `LIMIT` where appropriate.
 
 {% if elementType == "metric" %}
-Metric: return exactly one row with one headline value; no grouped comparisons.
+{% include "metric-query.md" %}
 {% elif elementType == "chart" %}
 Chart: one row per displayed group via `GROUP BY`, aggregating every metric; for named categories `ORDER BY` the main metric and `LIMIT 12`.
 {% elif elementType == "table" %}
