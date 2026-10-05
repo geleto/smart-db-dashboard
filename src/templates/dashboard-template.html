@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>{{ elements[0].title | escape }}</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+	<style>
+		.dashboard-container {
+			max-width: 1480px;
+		}
+		.dashboard-element, .dashboard-element > .card, .dashboard-element .card-body {
+			min-width: 0;
+		}
+		.dashboard-element {
+			display: flex;
+			align-items: stretch;
+			flex-direction: column;
+		}
+		.dashboard-element > * {
+			flex: 1 1 auto;
+			min-width: 0;
+			width: 100%;
+			height: 100%;
+		}
+		.dashboard-element .card > :not(.card-body) {
+			margin: 0 var(--bs-card-spacer-x) var(--bs-card-spacer-y);
+		}
+		.dashboard-element-table .card-body {
+			display: flex;
+			flex-direction: column;
+		}
+		.dashboard-element-table .table-responsive {
+			max-height: 360px;
+			overflow: auto;
+		}
+		.dashboard-element-metric .metric-value-number {
+			display: block;
+			margin-top: 0.75rem;
+			font-size: 2.5rem !important;
+			font-weight: 700 !important;
+			line-height: 1.1;
+		}
+		.dashboard-element-header + .dashboard-element-metric .metric-value-number {
+			font-size: 3rem !important;
+		}
+		.dashboard-element-metric [id$="-label"] {
+			margin-top: 0.25rem;
+			color: var(--bs-secondary-color);
+			font-size: 0.875rem;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container dashboard-container my-4">
+		<div class="row g-3">
+{% for element in elements %}
+			<div id="{{ element.id | escape }}" class="{{ element.columnClass }} dashboard-element dashboard-element-{{ element.type | escape }}">
+{% if element.queryError %}
+				<div class="card h-100 border-danger-subtle">
+					<div class="card-body">
+						<h6 class="card-title fw-semibold mb-1">{{ element.title | escape }}</h6>
+						<p class="text-muted small mb-3">{{ element.description | escape }}</p>
+						<div class="alert alert-danger mb-0" role="alert">
+							<div class="fw-semibold mb-1">Data unavailable</div>
+							<code class="small text-break">{{ element.queryError | escape }}</code>
+						</div>
+					</div>
+				</div>
+{% else %}
+				<template data-dashboard-element-template="{{ element.id | escape }}">
+{{ element.html | safe }}
+				</template>
+{% endif %}
+			</div>
+{% endfor %}
+		</div>
+	</div>
+
+	<script>
+	window.dashboardData = {
+{% for element in elements %}
+{% if element.dataJson %}
+		{{ element.dataJson | replace(r/<\/script/gi, "<\\/script") | safe }},
+{% endif %}
+{% endfor %}
+	};
+
+document.addEventListener('DOMContentLoaded', () => {
+	for (const template of document.querySelectorAll('template[data-dashboard-element-template]')) {
+		const target = document.getElementById(template.dataset.dashboardElementTemplate);
+		if (target) {
+			target.replaceChildren(template.content.cloneNode(true));
+		}
+	}
+
+	const getData = (key) => window.dashboardData?.[key] ?? [];
+	const firstRow = (key) => {
+		const rows = getData(key);
+		return Array.isArray(rows) ? rows[0] : rows;
+	};
+	const formatNumber = (value, maximumFractionDigits = 0) => {
+		const number = Number(value);
+		return Number.isFinite(number) ? new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(number) : '-';
+	};
+	const formatCurrency = (value, currency = 'USD') => {
+		const number = Number(value);
+		return Number.isFinite(number) ? new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(number) : '-';
+	};
+	const formatPercent = (value, maximumFractionDigits = 1) => {
+		const number = Number(value);
+		return Number.isFinite(number) ? formatNumber(number, maximumFractionDigits) + '%' : '-';
+	};
+	const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({
+		'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+	}[char]));
+	const elementScripts = [
+{% for element in elements %}
+{% if element.script %}
+		{
+			id: {{ element.id | dump | safe }},
+			script: {{ element.script | replace(r/<\/script/gi, "<\\/script") | dump | safe }},
+		},
+{% endif %}
+{% endfor %}
+	];
+	for (const elementScript of elementScripts) {
+		try {
+			new Function(
+				'getData',
+				'firstRow',
+				'formatNumber',
+				'formatCurrency',
+				'formatPercent',
+				'escapeHtml',
+				elementScript.script
+			)(getData, firstRow, formatNumber, formatCurrency, formatPercent, escapeHtml);
+		} catch (error) {
+			console.error('Dashboard element failed:', elementScript.id, error);
+		}
+	}
+});
+	</script>
+</body>
+
+</html>

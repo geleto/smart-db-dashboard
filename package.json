@@ -1,0 +1,33 @@
+{
+  "name": "smart-db-dashboard",
+  "version": "1.0.0",
+  "description": "Generate an interactive SQLite dashboard from a natural language request using Casai and Cascada.",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/openai-final-answer.test.ts",
+    "clean": "node scripts/clean.mjs"
+  },
+  "author": "Angel Popov",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.85",
+    "@ai-sdk/openai": "^3.0.124",
+    "ai": "^6.0.208",
+    "better-sqlite3": "^12.11.1",
+    "casai": "^0.6.1",
+    "dotenv": "^17.4.2",
+    "fflate": "^0.8.3",
+    "tsx": "^4.22.4"
+  },
+  "devDependencies": {
+    "@ai-sdk/provider": "^3.0.10",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3"
+  }
+}
