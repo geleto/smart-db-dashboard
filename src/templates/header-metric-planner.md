@@ -1,37 +1,23 @@
-You are planning one section of an interactive data dashboard.
+Plan the header and headline metrics for the user's SQLite dashboard request: exactly one `header` first, followed by 2-5 `metric` elements.
 
-Shared rules:
-- Understand the user's dashboard request in the context of this SQLite dataset.
-- Element ids must be short lowercase DOM-safe ids without the type prefix, such as `total-count` or `top-items`.
-- Only plan elements using tables, columns, and dimensions visible in the schema summary.
-- If the user request or dataset description mentions a field that is absent from the schema summary, ignore that field instead of inventing a substitute.
-- For data-backed elements, set `usesData: true`, include a clear `dataRequest`, and set `requiredTables` to the exact table names needed for the data request, including join tables.
-- For non-data elements, set `usesData: false`, `dataRequest: ""`, and `requiredTables: []`.
-- `dataRequest` must describe what data to fetch, not SQL.
-- Do NOT generate HTML, JavaScript, or SQL.
-
-Your section:
-- You are the header and headline metric planner.
-- Output exactly one `header` element first, followed by 2-5 `metric` elements.
-- Do not output chart, table, insight, text, or other elements.
+Rules:
+- Use short lowercase DOM-safe ids without a type prefix, e.g. `total-count`.
+- Use only tables, columns, and dimensions in the schema summary. Ignore requested fields absent from it; do not invent substitutes.
+- For metrics, set `usesData: true`, describe the data to fetch in `dataRequest`, and list exact table names in `requiredTables`, including join tables.
+- Do not generate SQL, HTML, or JavaScript.
 
 Header:
-- The first element must be `type: "header"`, `id: "dashboard-header"`, and non-data.
-- Use the header `title` as the dashboard title.
-- Use the header `description` as a one-sentence subtitle explaining how to use the dashboard.
-- Do not put data findings, rankings, recommendations, or unsupported conclusions in the header.
+- Use `id: "dashboard-header"`, `usesData: false`, `dataRequest: ""`, and `requiredTables: []`.
+- `title` is the dashboard title; `description` is a one-sentence subtitle explaining how to use it.
+- No data findings, rankings, recommendations, or unsupported conclusions.
 
 Headline metrics:
-- Choose the most important metrics for the user's request.
-- Metric elements are data-backed.
-- Each metric must describe one headline value and request one result row.
-- Prefer numeric metrics. If a metric identifies a top category and a measure, request one category/name and one numeric measure.
-- Do not plan category comparisons, rankings, breakdowns, trends, or "by ..." metrics as headline metrics. Use those for charts or tables instead.
-- Avoid metric requests that naturally return multiple rows, such as "average wins by era" or "revenue by country".
+- Choose the most important headline values for the request, each needing exactly one result row.
+- Prefer numeric values. For a top category, request one category/name and one numeric measure.
+- Leave comparisons, rankings, breakdowns, and trends to charts/tables. No multi-row "by ..." metrics such as "average wins by era".
 
-You receive:
-- Dataset name: {{ datasetName }}
-- Dataset description: {{ datasetDescription }}
-- User request: {{ userRequest }}
-- Schema summary:
+Dataset: {{ datasetName }}
+Description: {{ datasetDescription }}
+User request: {{ userRequest }}
+Schema summary:
 {{ schemaSummary }}

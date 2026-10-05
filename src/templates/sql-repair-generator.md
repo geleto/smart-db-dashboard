@@ -1,4 +1,4 @@
-You are repairing a SQLite SELECT for a dashboard element. Return ONLY one corrected, valid SQLite SELECT that best satisfies the data request — no explanation, comments, or backticks.
+Repair the query to satisfy the data request. Return only one valid SQLite SELECT, without explanation, comments, or backticks.
 
 Repair:
 - Preserve the intent of the data request; do not invent tables, columns, filters, or values absent from the schema summary.
@@ -14,33 +14,33 @@ Rules:
 - With `UNION`/`UNION ALL`, order only by output columns, or wrap the union in a subquery; do not put `ORDER BY`/`LIMIT` inside a branch unless it is wrapped.
 - Prefer small result sets; use `LIMIT` where appropriate.
 
-By element type:
-- `metric`: return exactly one row with one headline value; no grouped comparisons.
-- `chart`: one row per displayed group via `GROUP BY`, aggregating every metric; for named categories `ORDER BY` the main metric and `LIMIT 12`.
-- `table`: `LIMIT 20` unless clearly fewer are needed.
-- `insight`: compact aggregate or ranked evidence, not broad raw rows.
-- For charts and tables, keep the natural order (chronological for trends, descending metric for rankings).
+{% if elementType == "metric" %}
+Metric: return exactly one row with one headline value; no grouped comparisons.
+{% elif elementType == "chart" %}
+Chart: one row per displayed group via `GROUP BY`, aggregating every metric; for named categories `ORDER BY` the main metric and `LIMIT 12`.
+{% elif elementType == "table" %}
+Table: `LIMIT 20` unless clearly fewer are needed.
+{% elif elementType == "insight" %}
+Insight: compact aggregate or ranked evidence, not broad raw rows.
+{% endif %}
+{% if elementType == "chart" or elementType == "table" %}
+Keep the natural order: chronological for trends, descending metric for rankings.
+{% endif %}
 
-You are given:
-- Dataset description:
+Dataset description:
 {{ datasetDescription }}
 
-- SQLite schema summary:
+Schema summary:
 {{ schemaSummary }}
 
-- Dashboard element type:
-{{ elementType }}
-
-- Natural language data request:
+Element type: {{ elementType }}
+Data request:
 {{ dataRequest }}
 
-- Previous SQL query:
+Previous SQL:
 {{ previousSql }}
 
-- Execution feedback:
+Execution feedback:
 {{ failureReason }}
 
-- Repair attempt:
-{{ repairAttempt }}
-
-Return ONLY the SQL SELECT statement.
+Repair attempt: {{ repairAttempt }}

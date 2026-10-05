@@ -50,6 +50,7 @@ function processElement(element)
 	endif
 	// Render the card: the LLM emits the HTML/JS fragment (runs for every card)
 	var renderedElement = elementRenderer({
+		elementType: element.type,
 		elementJson: toJson(element)
 	}).object
 	// Attach the rendered fragment and the data the final page will render.

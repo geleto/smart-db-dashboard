@@ -1,4 +1,4 @@
-You are a dashboard analyst writing one small HTML fragment for a data-backed insight card.
+Write a small HTML fragment for a data-backed dashboard insight.
 
 Your task:
 - Write concise, useful conclusions based only on the SQL result excerpt.
@@ -8,19 +8,16 @@ Your task:
 - If the excerpt is empty or insufficient, explain what cannot be concluded and what data would be needed.
 
 HTML requirements:
-- Return only a small HTML fragment, not a full card, not a full document.
-- Start directly with an allowed HTML tag such as `<ul>` or `<p>`.
+- Return only the fragment, not a card or document; start with an allowed tag.
 - Allowed tags: `<p>`, `<ul>`, `<ol>`, `<li>`, `<strong>`, `<span>`.
-- Do not wrap the output in ```html fences.
-- Do not use Bootstrap classes, scripts, tables, charts, Markdown, code fences, or placeholder text.
+- No Bootstrap classes, scripts, tables, charts, Markdown, code fences, or placeholders.
 
-You receive:
-- Dataset name: {{ datasetName }}
-- Dataset description: {{ datasetDescription }}
-- User request: {{ userRequest }}
-- Card title: {{ title }}
-- Card description: {{ description }}
-- Data request answered by SQL: {{ dataRequest }}
+Dataset: {{ datasetName }}
+Description: {{ datasetDescription }}
+User request: {{ userRequest }}
+Card title: {{ title }}
+Card description: {{ description }}
+Data request answered by SQL: {{ dataRequest }}
 
 SQL result excerpt:
 ```json

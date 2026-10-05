@@ -79,7 +79,7 @@ test('the Casai element renderer parses the final card using the real template',
 		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
 		prompt: 'element-renderer.md', output: 'object', schema: schemas.renderedElement,
 	});
-	assert.deepEqual((await renderer({ elementJson: JSON.stringify(card) })).object, card);
+	assert.deepEqual((await renderer({ elementType: card.type, elementJson: JSON.stringify(card) })).object, card);
 });
 
 test('SQL and HTML text consumers receive only the final answer', async () => {
