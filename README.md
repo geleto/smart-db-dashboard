@@ -68,8 +68,12 @@ executed SQL, dashboard plans, model progress, timing, tokens, estimated cost,
 and aggregate call statistics. Basic and advanced calls have separate labels
 including the reasoning level so their timing and costs can be compared. The
 Total row uses the same statistics as each model row; their times are summed
-call durations. The final line reports elapsed run time and estimated total
-cost. Model prices in `src/setup.ts` are manual estimates using standard rates;
+call durations. The final line reports dashboard generation time and estimated
+total cost. `database.prepare()` ensures the local file is ready, reusing an
+existing copy. Timing starts immediately before `database.open()` opens that
+file in SQLite and ends when the dashboard HTML is saved. Schema profiling and
+dashboard generation are included; file preparation and browser launch are excluded.
+Model prices in `src/setup.ts` are manual estimates using standard rates;
 Luna rates apply up to 272K input tokens.
 
 OpenAI commentary is excluded from the text used for JSON, SQL, and HTML;

@@ -62,7 +62,6 @@ let totalActiveCalls = 0;
 let maxTotalActiveCalls = 0;
 let activePeriodStartTime: number | undefined;
 let totalActiveDurationMs = 0;
-let summaryLoggerRegistered = false;
 let summaryPrinted = false;
 
 function getModelStats(modelName: string, pricing?: ModelPricing): ModelCallStats {
@@ -164,7 +163,7 @@ function recordModelUsage(modelName: string, usage: LanguageModelV3Usage | undef
 	stats.cacheWriteTokens += cacheWriteTokens;
 }
 
-function printModelStatsSummary() {
+export function printModelStatsSummary(generationDurationMs: number) {
 	if (summaryPrinted || modelStats.size === 0) {
 		return;
 	}
@@ -202,22 +201,10 @@ function printModelStatsSummary() {
 		cacheReadTokens: totalCacheReadTokens,
 		cacheWriteTokens: totalCacheWriteTokens,
 	}, totalCostUsd));
-	process.stdout.write(`\n[LLM] Finished in ${formatSeconds(process.uptime() * 1000)} | estimated cost ${formatCostAmount(totalCostUsd)}\n`);
-}
-
-function registerSummaryLogger() {
-	if (summaryLoggerRegistered) {
-		return;
-	}
-
-	summaryLoggerRegistered = true;
-	process.once('beforeExit', printModelStatsSummary);
-	process.once('exit', printModelStatsSummary);
+	process.stdout.write(`\n[LLM] Finished in ${formatSeconds(generationDurationMs)} | estimated cost ${formatCostAmount(totalCostUsd)}\n`);
 }
 
 function startModelCall(modelName: string, pricing?: ModelPricing): number {
-	registerSummaryLogger();
-
 	if (totalActiveCalls === 0) {
 		activePeriodStartTime = Date.now();
 	}

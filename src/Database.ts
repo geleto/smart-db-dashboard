@@ -46,34 +46,36 @@ export interface SqlExecutionResult {
 
 export class Database {
 	private db!: Sqlite.Database;
+	private readonly dbPath: string;
 
 	constructor(
 		readonly datasetName: string,
 		readonly datasetDescription: string,
 		readonly databaseUrl: string
-	) { }
+	) {
+		this.dbPath = path.join(BASE_DIR, 'database', `${datasetName}.db`);
+	}
 
-	// Loads the database if necessary and opens it
-	async open() {
-		const dataDir = path.join(BASE_DIR, 'database');
+	// Ensure the local database file is ready; existing files are reused.
+	async prepare() {
+		const dataDir = path.dirname(this.dbPath);
 		if (!existsSync(dataDir)) {
 			mkdirSync(dataDir, { recursive: true });
 		}
-		const dbPath = path.join(dataDir, `${this.datasetName}.db`);
 		const sqlPath = path.join(dataDir, `${this.datasetName}.sql`);
 
 		// Download database if it doesn't exist, or rebuild it if an older run
 		// cached a SQL script at the .db path.
-		if (existsSync(dbPath)) {
-			const cachedFile = await fs.readFile(dbPath);
+		if (existsSync(this.dbPath)) {
+			const cachedFile = await fs.readFile(this.dbPath);
 			if (!isSqliteDatabase(cachedFile)) {
 				if (!looksLikeSqlScript(cachedFile)) {
 					throw new Error(
-						`Cached database at ${dbPath} is not a valid SQLite database. Delete it and retry the download.`
+						`Cached database at ${this.dbPath} is not a valid SQLite database. Delete it and retry the download.`
 					);
 				}
-				console.log(`Cached file at ${dbPath} is a SQL script; rebuilding SQLite DB...`);
-				await createDatabaseFromSql(cachedFile.toString('utf-8'), dbPath);
+				console.log(`Cached file at ${this.dbPath} is a SQL script; rebuilding SQLite DB...`);
+				await createDatabaseFromSql(cachedFile.toString('utf-8'), this.dbPath);
 			}
 		} else {
 			console.log(
@@ -90,22 +92,24 @@ export class Database {
 				? extractDatabaseFileFromZip(downloadedBuffer)
 				: downloadedBuffer;
 			if (isSqliteDatabase(buffer)) {
-				await fs.writeFile(dbPath, buffer);
-				console.log(`Saved DB to ${dbPath}`);
+				await fs.writeFile(this.dbPath, buffer);
+				console.log(`Saved DB to ${this.dbPath}`);
 			} else if (looksLikeSqlScript(buffer)) {
 				await fs.writeFile(sqlPath, buffer);
 				console.log(`Saved SQL script to ${sqlPath}`);
-				await createDatabaseFromSql(buffer.toString('utf-8'), dbPath);
-				console.log(`Created DB at ${dbPath}`);
+				await createDatabaseFromSql(buffer.toString('utf-8'), this.dbPath);
+				console.log(`Created DB at ${this.dbPath}`);
 			} else {
 				throw new Error(
 					`Downloaded file from ${this.databaseUrl} is neither a SQLite database nor a SQL script.`
 				);
 			}
 		}
+	}
 
-		// Open the database (whether just downloaded or already existed)
-		this.db = new Sqlite(dbPath, { readonly: true });
+	// Open the prepared SQLite file. Timing is managed by the caller.
+	open() {
+		this.db = new Sqlite(this.dbPath, { readonly: true });
 	}
 
 	getDb(): Sqlite.Database {

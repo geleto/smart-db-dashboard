@@ -34,6 +34,7 @@
 import { spawn } from 'child_process';
 import { writeFileSync } from 'fs';
 import { basicModel, advancedModel, basicProviderOptions, advancedProviderOptions } from './setup';
+import { printModelStatsSummary } from './model-logging';
 import { create, FileSystemLoader } from 'casai';
 import { fileURLToPath, pathToFileURL } from 'url';
 import path from 'path';
@@ -223,8 +224,10 @@ console.log(`User request: ${input.userRequest}\n Dataset: ${input.datasetName}`
 // 1. Initialize database
 const database = new Database(input.datasetName, input.datasetDescription, input.databaseUrl);
 try {
-	// 2. Ensure DB is downloaded and open it
-	await database.open();
+	// 2. Prepare the local file, then time SQLite opening and generation.
+	await database.prepare();
+	const generationStartedAt = performance.now();
+	database.open();
 
 	// 3. Extract schema summary
 	const schemaMetadata = database.getSchemaMetadata();
@@ -257,10 +260,11 @@ try {
 	const dashboardUrl = pathToFileURL(OUTPUT_HTML).href;
 	console.log('\nDashboard written to:', OUTPUT_HTML);
 	console.log('Dashboard URL:', dashboardUrl);
-	openInBrowser(dashboardUrl);
 
 	console.log('\n--- Dashboard generation complete ---');
 	console.log(`Generated dashboard: ${dashboardUrl}`);
+	printModelStatsSummary(performance.now() - generationStartedAt);
+	openInBrowser(dashboardUrl);
 
 } catch (error) {
 	process.exitCode = 1;
