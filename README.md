@@ -1,7 +1,7 @@
 # Smart DB Dashboard
 
 Turn plain-English questions about any SQLite database into dashboards with metrics, charts, tables, and insights.
-Renders a dashboard under 15 seconds at a cost of less than half a cent.
+Renders a dashboard in under 15 seconds at a cost of less than half a cent.
 
 
 ## Setup
