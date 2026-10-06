@@ -14,16 +14,16 @@ Rules:
 - With `UNION`/`UNION ALL`, order only by output columns, or wrap the union in a subquery; do not put `ORDER BY`/`LIMIT` inside a branch unless it is wrapped.
 - Prefer small result sets; use `LIMIT` where appropriate.
 
-{% if elementType == "metric" %}
+{% if element.type == "metric" %}
 {% include "metric-query.md" %}
-{% elif elementType == "chart" %}
+{% elif element.type == "chart" %}
 Chart: one row per displayed group via `GROUP BY`, aggregating every metric; for named categories `ORDER BY` the main metric and `LIMIT 12`.
-{% elif elementType == "table" %}
+{% elif element.type == "table" %}
 Table: `LIMIT 20` unless clearly fewer are needed.
-{% elif elementType == "insight" %}
+{% elif element.type == "insight" %}
 Insight: compact aggregate or ranked evidence, not broad raw rows.
 {% endif %}
-{% if elementType == "chart" or elementType == "table" %}
+{% if element.type == "chart" or element.type == "table" %}
 Keep the natural order: chronological for trends, descending metric for rankings.
 {% endif %}
 
@@ -31,11 +31,11 @@ Dataset description:
 {{ datasetDescription }}
 
 Schema summary:
-{{ schemaSummary }}
+{{ element.schemaSummary }}
 
-Element type: {{ elementType }}
+Element type: {{ element.type }}
 Data request:
-{{ dataRequest }}
+{{ element.dataRequest }}
 
 Previous SQL:
 {{ previousSql }}

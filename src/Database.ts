@@ -4,7 +4,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { unzipSync } from 'fflate';
-import type { z } from 'casai';
+import { schemas } from './types';
+import type { types } from './types';
 
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const SQLITE_HEADER = Buffer.from('SQLite format 3\0', 'ascii');
@@ -37,12 +38,6 @@ interface ColumnProfile {
 		min: unknown;
 		max: unknown;
 	};
-}
-
-export interface SqlExecutionResult {
-	ok: boolean;
-	rows: unknown[];
-	error?: string;
 }
 
 export class Database {
@@ -197,24 +192,10 @@ export class Database {
 		};
 	}
 
-	tryExecuteSql(sql: string, resultSchema?: z.ZodType<unknown[]> | null): SqlExecutionResult {
+	executeSql(sql: string, elementType: types.ProcessedElement['type']): unknown[] {
 		console.log(`[Database] Executing SQL:\n${sql}\n`);
-		const db = this.getDb();
-		try {
-			const rows = db.prepare(sql).all();
-			return {
-				ok: true,
-				rows: resultSchema ? resultSchema.parse(rows) : rows,
-			};
-		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : String(err);
-			console.error(`SQL Execution failed: ${errorMessage}`);
-			return {
-				ok: false,
-				rows: [],
-				error: errorMessage,
-			};
-		}
+		const rows = this.getDb().prepare(sql).all();
+		return elementType === 'metric' ? schemas.metricRows.parse(rows) : rows;
 	}
 
 	close(): void {

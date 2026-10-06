@@ -21,5 +21,5 @@ Data request answered by SQL: {{ dataRequest }}
 
 SQL result excerpt:
 ```json
-{{ jsonExcerpt }}
+{{ previewJson }}
 ```

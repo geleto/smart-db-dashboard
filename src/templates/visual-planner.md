@@ -20,4 +20,4 @@ Dataset: {{ datasetName }}
 Description: {{ datasetDescription }}
 User request: {{ userRequest }}
 Schema summary:
-{{ schemaSummary }}
+{{ fullSchemaSummary }}

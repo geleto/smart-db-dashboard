@@ -74,8 +74,8 @@ function layoutElements(elements: types.ProcessedElement[]): types.LayoutElement
 		});
 }
 
-function normalizeElementId(type: string, id: string): string {
-	return `${type}-${id}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+function normalizeElementId(element: types.ProcessedElement): string {
+	return `${element.type}-${element.id}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
 // ---------------------------------------------------------------------------
@@ -86,6 +86,7 @@ const plannerConfig = create.Config({
 	providerOptions: advancedProviderOptions,
 	loader: templateLoader,
 	output: 'array',
+	context: input,
 });
 
 const headerMetricPlanner = create.ObjectStreamer.loadsTemplate({
@@ -111,6 +112,7 @@ const sqlFromRequestGenerator = create.TextGenerator.loadsTemplate({
 	providerOptions: basicProviderOptions,
 	loader: templateLoader,
 	prompt: 'sql-generator.md',
+	context: input,
 });
 
 const sqlRepairGenerator = create.TextGenerator.loadsTemplate({
@@ -118,6 +120,7 @@ const sqlRepairGenerator = create.TextGenerator.loadsTemplate({
 	providerOptions: advancedProviderOptions,
 	loader: templateLoader,
 	prompt: 'sql-repair-generator.md',
+	context: input,
 });
 
 // ---------------------------------------------------------------------------
@@ -128,6 +131,7 @@ const textInsightGenerator = create.TextGenerator.loadsTemplate({
 	providerOptions: advancedProviderOptions,
 	loader: templateLoader,
 	prompt: 'text-insight-generator.md',
+	context: input,
 });
 
 // ---------------------------------------------------------------------------
@@ -169,7 +173,6 @@ const dashboardProcessor = create.Script.loadsScript({
 		sqlRepairGenerator,
 		textInsightGenerator,
 		elementRenderer,
-		metricRowsSchema: schemas.metricRows,
 		schemaSummaryTemplate,
 		generatePreviewJson: (rows: unknown[], rowLimit = 5) => {
 			const json = JSON.stringify(rows.slice(0, rowLimit), null, 2);
@@ -177,9 +180,6 @@ const dashboardProcessor = create.Script.loadsScript({
 		},
 		toJson: (value: unknown) => JSON.stringify(value, null, 2),
 		normalizeElementId,
-		datasetDescription: input.datasetDescription,
-		datasetName: input.datasetName,
-		userRequest: input.userRequest,
 	},
 	schema: schemas.processedDashboard,
 	script: 'orchestrator.cas'
@@ -199,13 +199,13 @@ try {
 
 	// 3. Extract schema summary
 	const schemaMetadata = database.getSchemaMetadata();
-	const schemaSummary = await schemaSummaryTemplate(schemaMetadata);
+	const fullSchemaSummary = await schemaSummaryTemplate(schemaMetadata);
 	const schemaMetadataForTables = createSchemaMetadataForTables(schemaMetadata);
-	console.log(`\n=== Schema Summary ===\n${schemaSummary}`);
+	console.log(`\n=== Schema Summary ===\n${fullSchemaSummary}`);
 
 	// 4. Plan sections, fetch data, generate insights, and render each card
 	console.log('\nRunning planner sections and processing elements...\n');
-	const elements = await dashboardProcessor({ database, schemaSummary, schemaMetadataForTables });
+	const elements = await dashboardProcessor({ database, fullSchemaSummary, schemaMetadataForTables });
 	if (elements[0]?.type != 'header') {
 		throw new Error('Planner must return a header element first.');
 	}

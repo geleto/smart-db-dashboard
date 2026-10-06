@@ -6,6 +6,7 @@ import { create, FileSystemLoader } from 'casai';
 import { fileURLToPath } from 'node:url';
 import { withOpenAIFinalAnswer } from '../src/openai-final-answer.ts';
 import { schemas } from '../src/types.ts';
+import type { types } from '../src/types.ts';
 
 const card = { html: '<div>Trends</div>', script: '' };
 const header = {
@@ -79,7 +80,7 @@ test('the Casai element renderer parses the final card using the real template',
 		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
 		prompt: 'element-renderer.md', output: 'object', schema: schemas.renderedElement,
 	});
-	assert.deepEqual((await renderer({ elementType: 'chart', elementJson: JSON.stringify({ id: 'chart-trends', type: 'chart' }) })).object, card);
+	assert.deepEqual((await renderer({ element: { id: 'chart-trends', type: 'chart' } })).object, card);
 });
 
 test('SQL and HTML text consumers receive only the final answer', async () => {
@@ -129,6 +130,7 @@ test('the dashboard orchestrator completes with commentary in planners and the r
 		create.ObjectStreamer.loadsTemplate({
 			model: withOpenAIFinalAnswer(mockModel(mixedOutput(JSON.stringify({ elements })))),
 			loader, prompt, output: 'array', schema,
+			context: { datasetName: 'Test', datasetDescription: 'Test database', userRequest: 'Show an overview.' },
 		});
 	const renderedHeader = { html: '<header>Overview</header>', script: '' };
 	const renderer = create.ObjectGenerator.loadsTemplate({
@@ -143,10 +145,9 @@ test('the dashboard orchestrator completes with commentary in planners and the r
 			visualPlanner: planner('visual-planner.md', schemas.visualElement, []),
 			insightTextPlanner: planner('insight-text-planner.md', schemas.insightTextElement, []),
 			elementRenderer: renderer,
-			normalizeElementId: (type: string, id: string) => `${type}-${id}`,
+			normalizeElementId: (element: types.ProcessedElement) => `${element.type}-${element.id}`,
 			toJson: JSON.stringify,
-			datasetName: 'Test', datasetDescription: 'Test database', userRequest: 'Show an overview.',
-			schemaSummary: 'No data needed.',
+			fullSchemaSummary: 'No data needed.',
 		},
 	});
 	assert.deepEqual(await processor({}), [{ ...header, id: 'header-overview', html: renderedHeader.html, script: '' }]);

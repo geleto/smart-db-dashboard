@@ -1,62 +1,46 @@
 // Fetch each card's data, then build its content.
 function processElement(element)
-	element.id = normalizeElementId(element.type, element.id)
+	element.id = normalizeElementId(element)
 	var rows = []
 	if element.usesData and element.dataRequest
 		// Narrow the schema: scope the summary to just this card's tables
-		var elementSchemaSummary = schemaSummaryTemplate(schemaMetadataForTables(element.requiredTables))
+		element.schemaSummary = schemaSummaryTemplate(schemaMetadataForTables(element.requiredTables))
 		// Fetch the data: the LLM drafts the SQL, the database runs it
-		var sql = sqlFromRequestGenerator({
-			datasetDescription: datasetDescription,
-			schemaSummary: elementSchemaSummary,
-			elementType: element.type,
-			dataRequest: element.dataRequest
-		}).text
-		var resultSchema = metricRowsSchema if element.type == "metric" else null
-		var queryResult = database.tryExecuteSql(sql, resultSchema)
+		var sql = sqlFromRequestGenerator(element).text
+		var queryResult = database.executeSql(sql, element.type)
 		var repairAttempts = 0
 		// Repair and fall back: retry a failed/empty query, escalating the model then widening the schema
-		while repairAttempts < 2 and (queryResult.ok == false or queryResult.rows.length == 0)
+		while repairAttempts < 2 and (queryResult is error or queryResult.length == 0)
 			repairAttempts = repairAttempts + 1
+			if repairAttempts == 2
+				element.schemaSummary = fullSchemaSummary
+			endif
 			sql = sqlRepairGenerator({
-				datasetDescription: datasetDescription,
-				schemaSummary: schemaSummary if repairAttempts == 2 else elementSchemaSummary,
-				elementType: element.type,
-				dataRequest: element.dataRequest,
+				element: element,
 				previousSql: sql,
-				failureReason: queryResult.error if queryResult.ok == false else "The query returned zero rows.",
+				failureReason: queryResult#description if queryResult is error else "The query returned zero rows.",
 				repairAttempt: repairAttempts
 			}).text
-			queryResult = database.tryExecuteSql(sql, resultSchema)
+			queryResult = database.executeSql(sql, element.type)
 		endwhile
-		rows = queryResult.rows
 		// Give up gracefully: the page will show an error card.
-		if queryResult.ok == false or rows.length == 0
-			element.queryError = queryResult.error if queryResult.ok == false else "The query returned zero rows."
+		if queryResult is error or queryResult.length == 0
+			element.queryError = queryResult#description if queryResult is error else "The query returned zero rows."
 			return element
 		endif
+		rows = queryResult
 	endif
 	// Metrics use shared markup; insights already produce HTML.
 	if element.type == "metric"
 		element.metric = rows[0]
 	elif element.type == "insight"
-		element.contentHtml = textInsightGenerator({
-			datasetName: datasetName,
-			datasetDescription: datasetDescription,
-			userRequest: userRequest,
-			title: element.title,
-			description: element.description,
-			dataRequest: element.dataRequest,
-			jsonExcerpt: generatePreviewJson(rows, 25)
-		}).text
+		element.previewJson = generatePreviewJson(rows, 25)
+		element.contentHtml = textInsightGenerator(element).text
 	else
 		if element.usesData
 			element.previewJson = generatePreviewJson(rows)
 		endif
-		var renderedElement = elementRenderer({
-			elementType: element.type,
-			elementJson: toJson(element)
-		}).object
+		var renderedElement = elementRenderer({ element: element }).object
 		element.html = renderedElement.html
 		element.script = renderedElement.script.trim()
 		// Only generated scripts need browser-side rows.
@@ -67,16 +51,10 @@ function processElement(element)
 	return element
 endfunction
 
-var plannerInput = {
-	datasetName: datasetName,
-	datasetDescription: datasetDescription,
-	userRequest: userRequest,
-	schemaSummary: schemaSummary
-}
 // Plan the layout: three planners run in parallel and stream cards as they decide them
-var headerMetrics = headerMetricPlanner(plannerInput).elementStream
-var chartsTables = visualPlanner(plannerInput).elementStream
-var insightsText = insightTextPlanner(plannerInput).elementStream
+var headerMetrics = headerMetricPlanner({ fullSchemaSummary: fullSchemaSummary }).elementStream
+var chartsTables = visualPlanner({ fullSchemaSummary: fullSchemaSummary }).elementStream
+var insightsText = insightTextPlanner({ fullSchemaSummary: fullSchemaSummary }).elementStream
 
 // Process each card as it streams, without waiting for the full plan.
 data processedElements = []

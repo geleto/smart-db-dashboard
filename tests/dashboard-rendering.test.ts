@@ -11,8 +11,8 @@ import type { types } from '../src/types.ts';
 const contentHtml = '<ul><li><strong>North</strong> leads revenue.</li><li>Compare basket sizes & sales counts.</li></ul>';
 const rows = [{ region: 'North', revenue: 400 }];
 
-for (const succeeds of [true, false]) {
-	test(`insight ${succeeds ? 'generation skips rendering' : 'query failure keeps the error card'}`, async () => {
+for (const outcome of ['success', 'failure', 'empty']) {
+	test(`insight ${outcome === 'success' ? 'generation skips rendering' : `${outcome} query keeps the error card`}`, async () => {
 		const calls = { sql: 0, repair: 0, insight: 0, render: 0 };
 		const processor = create.Script.loadsScript({
 			loader: new FileSystemLoader(fileURLToPath(new URL('../src', import.meta.url))),
@@ -24,31 +24,48 @@ for (const succeeds of [true, false]) {
 					id: 'regional-revenue', type: 'insight', title: 'Regional revenue', description: 'Ranked evidence.',
 					usesData: true, dataRequest: 'Rank regions by revenue.', requiredTables: ['sales'],
 				}] }),
-				sqlFromRequestGenerator: () => { calls.sql++; return { text: 'SELECT region, revenue FROM sales' }; },
-				sqlRepairGenerator: () => { calls.repair++; return { text: 'SELECT region, revenue FROM sales' }; },
-				textInsightGenerator: () => { calls.insight++; return { text: contentHtml }; },
+				sqlFromRequestGenerator: (element: { schemaSummary: string }) => {
+					calls.sql++;
+					assert.equal(element.schemaSummary, 'sales: region, revenue');
+					return { text: 'SELECT region, revenue FROM sales' };
+				},
+				sqlRepairGenerator: ({ element, repairAttempt, failureReason }: { element: { schemaSummary: string }; repairAttempt: number; failureReason: string }) => {
+					calls.repair++;
+					assert.equal(element.schemaSummary, repairAttempt === 2 ? 'sales: region, revenue; customers: id' : 'sales: region, revenue');
+					assert.equal(failureReason, outcome === 'failure' ? 'no such column: revenue' : 'The query returned zero rows.');
+					return { text: 'SELECT region, revenue FROM sales' };
+				},
+				textInsightGenerator: (element: types.ProcessedElement) => {
+					calls.insight++;
+					assert.equal(element.title, 'Regional revenue');
+					assert.equal(element.dataRequest, 'Rank regions by revenue.');
+					assert.equal(element.previewJson, JSON.stringify(rows));
+					return { text: contentHtml };
+				},
 				elementRenderer: () => { calls.render++; assert.fail('Insight HTML must not be rendered twice'); },
-				database: { tryExecuteSql: () => succeeds ? { ok: true, rows } : { ok: false, rows: [], error: 'no such column: revenue' } },
+				database: { executeSql: () => {
+					if (outcome === 'failure') throw new Error('no such column: revenue');
+					return outcome === 'success' ? rows : [];
+				} },
 				schemaMetadataForTables: () => ({}), schemaSummaryTemplate: () => 'sales: region, revenue',
 				generatePreviewJson: JSON.stringify, toJson: JSON.stringify,
-				normalizeElementId: (type: string, id: string) => `${type}-${id}`,
-				datasetName: 'Test', datasetDescription: 'Test sales', userRequest: 'Compare regions.',
-				schemaSummary: 'sales: region, revenue',
+				normalizeElementId: (element: types.ProcessedElement) => `${element.type}-${element.id}`,
+				fullSchemaSummary: 'sales: region, revenue; customers: id',
 			},
 		});
 		const [element] = await processor({});
 		assert.equal(element.id, 'insight-regional-revenue');
 		assert.equal(element.html, undefined);
 		assert.equal(element.script, undefined);
-		if (succeeds) {
+		if (outcome === 'success') {
 			assert.deepEqual(calls, { sql: 1, repair: 0, insight: 1, render: 0 });
 			assert.equal(element.contentHtml, contentHtml);
 			assert.equal(element.dataJson, undefined);
-			assert.equal(element.previewJson, undefined);
+			assert.equal(element.previewJson, JSON.stringify(rows));
 			assert.equal(element.queryError, undefined);
 		} else {
 			assert.deepEqual(calls, { sql: 1, repair: 2, insight: 0, render: 0 });
-			assert.equal(element.queryError, 'no such column: revenue');
+			assert.equal(element.queryError, outcome === 'failure' ? 'no such column: revenue' : 'The query returned zero rows.');
 			assert.equal(element.contentHtml, undefined);
 		}
 	});
@@ -101,10 +118,32 @@ test('metric formatting preserves zero, missing values, text, precision, currenc
 	assert.equal(formatMetric({ value: 12.345, decimals: 1, suffix: '%' }), new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(12.345) + '%');
 });
 
+test('the renderer receives card details and preview data without the SQL schema', async () => {
+	const element = {
+		id: 'table-revenue', type: 'table', title: 'Revenue', description: 'Compare regions.',
+		usesData: true, dataRequest: 'Rank regional revenue.', requiredTables: ['sales'],
+		previewJson: JSON.stringify(rows), schemaSummary: 'QUERY_ONLY_SCHEMA',
+	};
+	const template = create.Template.loadsTemplate({
+		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
+		template: 'element-renderer.md',
+	});
+	const prompt = await template({ element });
+	assert(!prompt.includes(element.schemaSummary));
+	const json = JSON.parse(prompt.match(/```json\s*([\s\S]*?)\s*```/)![1]);
+	assert.equal(json.id, element.id);
+	assert.equal(json.title, element.title);
+	assert.equal(json.description, element.description);
+	assert.equal(json.dataRequest, element.dataRequest);
+	assert.equal(json.previewJson, element.previewJson);
+});
+
 for (const scenario of [
 	{ name: 'a record with a secondary label', sql: "SELECT 116 AS value, 'Chicago Cubs · 1906' AS label", repairs: 0, metric: { value: 116, label: 'Chicago Cubs · 1906' } },
 	{ name: 'a zero without a label', sql: 'SELECT 0 AS value', repairs: 0, metric: { value: 0 } },
 	{ name: 'a null aggregate', sql: 'SELECT NULL AS value', repairs: 0, metric: { value: null } },
+	{ name: 'a repair after invalid SQL', sql: 'SELECT missing_column AS value', repairs: 1, metric: { value: 116 } },
+	{ name: 'a second repair after invalid SQL', sql: 'SELECT missing_column AS value', repairs: 2, metric: { value: 116 } },
 	{ name: 'a repair after an incorrect alias', sql: 'SELECT 116 AS wins', repairs: 1, metric: { value: 116 } },
 	{ name: 'a repair after multiple rows', sql: 'SELECT 116 AS value UNION ALL SELECT 100', repairs: 1, metric: { value: 116 } },
 	{ name: 'a repair after invalid formatting', sql: "SELECT 116 AS value, 'two' AS decimals", repairs: 1, metric: { value: 116 } },
@@ -125,17 +164,22 @@ for (const scenario of [
 					usesData: true, dataRequest: 'Find the season wins record.', requiredTables: ['Teams'],
 				}] }),
 				visualPlanner: () => ({ elementStream: [] }), insightTextPlanner: () => ({ elementStream: [] }),
-				sqlFromRequestGenerator: () => { calls.sql++; return { text: scenario.sql }; },
-				sqlRepairGenerator: ({ failureReason }: { failureReason: string }) => {
+				sqlFromRequestGenerator: (element: { schemaSummary: string }) => {
+					calls.sql++;
+					assert.equal(element.schemaSummary, 'Teams: W, name, yearID');
+					return { text: scenario.sql };
+				},
+				sqlRepairGenerator: ({ failureReason, element, repairAttempt }: { failureReason: string; element: { schemaSummary: string }; repairAttempt: number }) => {
 					calls.repair++;
-					assert.match(failureReason, /value|array|decimals|team_name/i);
-					return { text: scenario.metric ? 'SELECT 116 AS value' : scenario.sql };
+					assert.match(failureReason, /value|array|decimals|team_name|missing_column/i);
+					assert.equal(element.schemaSummary, repairAttempt === 2 ? 'Teams: W, name, yearID; People: playerID' : 'Teams: W, name, yearID');
+					return { text: scenario.metric && calls.repair >= scenario.repairs ? 'SELECT 116 AS value' : scenario.sql };
 				},
 				elementRenderer: () => assert.fail('KPIs must not call the renderer'),
-				database, metricRowsSchema: schemas.metricRows,
+				database,
 				schemaMetadataForTables: () => ({}), schemaSummaryTemplate: () => 'Teams: W, name, yearID',
-				toJson: JSON.stringify, normalizeElementId: (type: string, id: string) => `${type}-${id}`,
-				datasetName: 'Test', datasetDescription: 'Test baseball', userRequest: 'Show records.', schemaSummary: 'Teams: W, name, yearID',
+				toJson: JSON.stringify, normalizeElementId: (element: types.ProcessedElement) => `${element.type}-${element.id}`,
+				fullSchemaSummary: 'Teams: W, name, yearID; People: playerID',
 			},
 		});
 		try {
@@ -152,6 +196,38 @@ for (const scenario of [
 		}
 	});
 }
+
+test('a failed SQL card does not prevent other streamed cards from completing', async () => {
+	const sqlite = new Sqlite(':memory:');
+	const database = new Database('Test', 'Test database', '');
+	database.getDb = () => sqlite;
+	const processor = create.Script.loadsScript({
+		loader: new FileSystemLoader(fileURLToPath(new URL('../src', import.meta.url))),
+		script: 'orchestrator.cas', schema: schemas.processedDashboard,
+		context: {
+			headerMetricPlanner: () => ({ elementStream: ['broken', 'healthy'].map(id => ({
+				id, type: 'metric', title: id, description: 'A record.',
+				usesData: true, dataRequest: 'Find the record.', requiredTables: [],
+			})) }),
+			visualPlanner: () => ({ elementStream: [] }), insightTextPlanner: () => ({ elementStream: [] }),
+			sqlFromRequestGenerator: (element: types.ProcessedElement) => ({ text: element.id === 'metric-broken' ? 'SELECT missing_column AS value' : 'SELECT 0 AS value' }),
+			sqlRepairGenerator: ({ previousSql }: { previousSql: string }) => ({ text: previousSql }),
+			elementRenderer: () => assert.fail('KPIs must not call the renderer'),
+			database, fullSchemaSummary: 'Test database.',
+			schemaMetadataForTables: () => ({}), schemaSummaryTemplate: () => 'Test database.',
+			normalizeElementId: (element: types.ProcessedElement) => `${element.type}-${element.id}`,
+		},
+	});
+	try {
+		const [broken, healthy] = await processor({});
+		assert.equal(broken.queryError, 'no such column: missing_column');
+		assert.equal(broken.metric, undefined);
+		assert.deepEqual(healthy.metric, { value: 0 });
+		assert.equal(healthy.queryError, undefined);
+	} finally {
+		database.close();
+	}
+});
 
 test('the shared KPI markup escapes text and omits absent secondary labels', async () => {
 	const template = create.Template.loadsTemplate({
