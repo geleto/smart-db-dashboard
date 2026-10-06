@@ -48,15 +48,18 @@ or unit formatting. They require no separate HTML/JavaScript generation call.
 
 ## Example dashboards
 
-Open these saved dashboards in a browser to explore sample output without
-running the generator or making model calls. Each HTML file includes its data;
-an internet connection is needed to load Bootstrap and Chart.js from their CDNs.
+Open these saved dashboards using the browser preview links below to explore
+sample output without running the generator or making model calls. Previews are
+served through [raw.githack](https://raw.githack.com/) from the `main` branch;
+the service may ask you to confirm before opening the first dashboard. Each HTML
+file includes its data; an internet connection is needed to load Bootstrap and
+Chart.js from their CDNs.
 
-- [Baseball team performance across eras](examples/basebal-perfomance.html)
-- [Music catalog performance](examples/catalog-perfomance.html)
-- [Film catalog demand](examples/film-demand.html)
-- [Rental and payment activity](examples/rental-activity.html)
-- [Taxonomic coverage](examples/taxonomic-coverage.html)
+- [Baseball team performance across eras](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/basebal-perfomance.html)
+- [Music catalog performance](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/catalog-perfomance.html)
+- [Film catalog demand](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/film-demand.html)
+- [Rental and payment activity](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/rental-activity.html)
+- [Taxonomic coverage](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/taxonomic-coverage.html)
 
 ## Configure
 
