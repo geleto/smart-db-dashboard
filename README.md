@@ -49,17 +49,16 @@ or unit formatting. They require no separate HTML/JavaScript generation call.
 ## Example dashboards
 
 Open these saved dashboards using the browser preview links below to explore
-sample output without running the generator or making model calls. Previews are
-served through [raw.githack](https://raw.githack.com/) from the `main` branch;
-the service may ask you to confirm before opening the first dashboard. Each HTML
-file includes its data; an internet connection is needed to load Bootstrap and
-Chart.js from their CDNs.
+sample output without running the generator or making model calls. Dashboards are
+hosted directly on GitHub Pages from the `main` branch. Each HTML file includes
+its data; an internet connection is needed to load Bootstrap and Chart.js from
+their CDNs.
 
-- [Baseball team performance across eras](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/basebal-perfomance.html)
-- [Music catalog performance](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/catalog-perfomance.html)
-- [Film catalog demand](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/film-demand.html)
-- [Rental and payment activity](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/rental-activity.html)
-- [Taxonomic coverage](https://raw.githack.com/geleto/smart-db-dashboard/main/examples/taxonomic-coverage.html)
+- [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/basebal-perfomance.html)
+- [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-perfomance.html)
+- [Film catalog demand](https://geleto.github.io/smart-db-dashboard/examples/film-demand.html)
+- [Rental and payment activity](https://geleto.github.io/smart-db-dashboard/examples/rental-activity.html)
+- [Taxonomic coverage](https://geleto.github.io/smart-db-dashboard/examples/taxonomic-coverage.html)
 
 ## Configure
 
