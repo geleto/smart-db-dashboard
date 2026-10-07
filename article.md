@@ -321,9 +321,9 @@ Metrics go into the shared page template; insights are already HTML. In the full
 
 ### Cache reusable work: static first, dynamic last
 
-Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. [Prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching) can then reuse the static part even when later content changes, reducing input processing time and cost.
+Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. Prompt caching can then reuse the static part even when later content changes, reducing input processing time and cost.
 
-We can also add an optional prompt-cache key to the shared configuration from earlier:
+For example, add an optional cache key to the shared configuration:
 
 ```typescript
 const cachedFastConfig = create.Config({
@@ -336,6 +336,6 @@ const cachedFastConfig = create.Config({
 }, fastConfig);
 ```
 
-Pass this configuration when creating the SQL and rendering components. The key does not mark the static part; OpenAI may need a message boundary or an explicit cache breakpoint there. Check the logs to confirm reuse.
+Pass this configuration to the SQL and rendering components. Enable any required cache controls and check cache usage in the logs. Caching settings vary by provider.
 
 We also reuse the downloaded SQLite file. Within a run, we read the database structure once and share it across tasks.
