@@ -17,13 +17,23 @@ import { createSchemaMetadataForTables, Database } from './Database';
 import { schemas } from './types';
 import type { types } from './types';
 import { formatMetric } from './metric';
+import { listScenarios, selectScenario } from './scenarios';
 
 import inputJson from './input.json';
 const inputFile: types.PlanningInputFile = inputJson;
-const input = inputFile.scenarios[inputFile.activeScenario];
-if (!input) {
-	throw new Error(`input.json activeScenario "${inputFile.activeScenario}" was not found.`);
+const args = process.argv.slice(2);
+if (args.length === 1 && args[0] === '--list') {
+	console.log(listScenarios(inputFile));
+	process.exit(0);
 }
+let selection: ReturnType<typeof selectScenario>;
+try {
+	selection = selectScenario(inputFile, args);
+} catch (error) {
+	console.error(error instanceof Error ? error.message : String(error));
+	process.exit(1);
+}
+const { key: scenarioKey, scenario: input } = selection;
 
 const BASE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_HTML = path.join(BASE_DIR, 'dashboard.html');
@@ -186,7 +196,7 @@ const dashboardProcessor = create.Script.loadsScript({
 });
 
 console.log('SMART DB DASHBOARD\nCreates a data dashboard by first planning the layout and data requirements, then executing that plan.\n');
-console.log(`Scenario "${inputFile.activeScenario}": ${input.name}`);
+console.log(`Scenario "${scenarioKey}": ${input.name}`);
 console.log(`User request: ${input.userRequest}\n Dataset: ${input.datasetName}`);
 
 // 1. Initialize database

@@ -49,6 +49,16 @@ The OpenAI key is still required for SQL drafts and card rendering.
 npm start
 ```
 
+Pass a scenario number to override `activeScenario` for this run. Numbers start
+at 1 and follow the order in `src/input.json`; for example, 5 runs Lahman team eras.
+
+```sh
+npm start -- 5
+npm start -- --list
+```
+
+`--list` shows the available scenario numbers without generating a dashboard.
+
 The dashboard is saved to `src/dashboard.html` and opens in your default browser.
 On Linux, automatic opening uses `xdg-open`. If it is unavailable or you are
 running without a desktop, open the generated HTML file in a browser manually.
@@ -65,18 +75,23 @@ hosted directly on GitHub Pages from the `main` branch. Each HTML file includes
 its data; an internet connection is needed to load Bootstrap and Chart.js from
 their CDNs.
 
-- [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/basebal-perfomance.html)
-- [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-perfomance.html)
-- [Film catalog demand](https://geleto.github.io/smart-db-dashboard/examples/film-demand.html)
-- [Rental and payment activity](https://geleto.github.io/smart-db-dashboard/examples/rental-activity.html)
-- [Taxonomic coverage](https://geleto.github.io/smart-db-dashboard/examples/taxonomic-coverage.html)
+- [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/basebal-perfomance.html) — `npm start 5`
+- [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-perfomance.html) — `npm start 12`
+- [Film catalog demand](https://geleto.github.io/smart-db-dashboard/examples/film-demand.html) — `npm start 2`
+- [Rental and payment activity](https://geleto.github.io/smart-db-dashboard/examples/rental-activity.html) — `npm start 1`
+- [Taxonomic coverage](https://geleto.github.io/smart-db-dashboard/examples/taxonomic-coverage.html) — `npm start 3`
 
 ## Configure
 
-Edit `src/input.json` and set `activeScenario` to a key in `scenarios`. The copied
-default is `lahman_team_eras`. Each scenario defines the request, dataset name,
-description, and database URL. Database downloads support SQLite files, SQL
-scripts, and ZIP archives, and are cached in `src/database/`.
+Add your own scenarios under `scenarios` in `src/input.json`. Copy an existing
+entry, give it a unique key, and set `userRequest` to your question. Each scenario
+also needs `name`, `datasetName`, `datasetDescription`, and `databaseUrl`.
+You can add different questions about the same database by reusing its dataset settings.
+
+Database downloads support SQLite files, SQL scripts, and ZIP archives, and are
+cached in `src/database/`.
+
+To change the default for `npm start`, set `activeScenario` to a scenario's key.
 
 ## Logging and checks
 
