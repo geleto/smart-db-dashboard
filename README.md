@@ -9,8 +9,8 @@ Read [the article](article.md) for the design and implementation details.
 ## How it works
 
 1. Prepare the SQLite database and read its schema.
-2. Start three planners concurrently: headers and metrics, charts and tables, and insights and text.
-3. As cards arrive, query their data, repair failures, and build their content.
+2. Start three planners concurrently, each streaming its planned cards: headers and metrics, charts and tables, and insights and text.
+3. Process cards concurrently as they arrive: query their data, repair failures, and build their content.
 4. Arrange the cards and save the HTML page.
 
 ## Setup

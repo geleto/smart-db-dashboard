@@ -18,8 +18,8 @@ Here are four example dashboards, with their datasets and the requests used to g
 ## How it works
 
 1. Prepare the SQLite database and read its schema.
-2. Start three planners concurrently: headers and metrics, charts and tables, and insights and text.
-3. As cards arrive, query their data, repair failures, and build their content.
+2. Start three planners concurrently, each streaming its planned cards: headers and metrics, charts and tables, and insights and text.
+3. Process cards concurrently as they arrive: query their data, repair failures, and build their content.
 4. Arrange the cards and save the HTML page.
 
 ## How we make it fast and efficient
@@ -33,10 +33,10 @@ These are the main methods:
 - [**Minimize context for each task**](#minimize-context-for-each-task)
 - [**Keep generated output short**](#keep-generated-output-short)
 - [**Run independent work concurrently**](#run-independent-work-concurrently)
-- [**Start work as results arrive**](#start-work-as-results-arrive)
-- [**Fix failed tasks with limited retries**](#fix-failed-tasks-with-limited-retries)
+- [**Stream results and process them as they arrive**](#stream-results-and-process-them-as-they-arrive)
+- [**Fix failed tasks with retries**](#fix-failed-tasks-with-retries)
 - [**Remove unnecessary model calls**](#remove-unnecessary-model-calls)
-- [**Cache reusable work**](#cache-reusable-work)
+- [**Cache reusable work: static first, dynamic last**](#cache-reusable-work-static-first-dynamic-last)
 
 The code examples use [Casai](https://github.com/geleto/casai) to define tasks and [Cascada](https://github.com/geleto/cascada/blob/master/docs/cascada/script.md) to run them. The same ideas work with other libraries.
 
@@ -213,9 +213,9 @@ var insightPlan = insightTextPlanner({ fullSchemaSummary: fullSchemaSummary })
 
 Cascada automatically waits when a step needs an earlier result. Separate cards can run together, while each card's rendering waits for its query results.
 
-### Start work as results arrive
+### Stream results and process them as they arrive
 
-A stream delivers results one at a time while a task is still running. A planner can finish the first chart's instructions while it is still planning the rest. Querying and building that chart can begin straight away. Stream complete items that the next step can use, so planning, querying, and rendering overlap.
+Stream complete work items and start processing each as it arrives. A planner can emit the first card while still planning the rest, allowing planning, querying, and rendering to overlap.
 
 Our planners use Casai's `ObjectStreamer` with `output: 'array'`. Its `schema` describes each card, and its `elementStream` supplies complete cards as they are generated. Here, [`schemas.visualElement`](src/types.ts) requires a chart or table plan with a title, a description of the data to fetch, and the required table names:
 
@@ -245,7 +245,7 @@ return processedElements.snapshot() // Wait for all cards; keep plan order.
 
 Cards stay in plan order even when they finish in a different order. The next sections show repairs and handling for other card types.
 
-### Fix failed tasks with limited retries
+### Fix failed tasks with retries
 
 Limited retries let you start with a simpler model and use a stronger model for repairs. Give the stronger model the failed output and feedback about what went wrong. Retry only the failed task, so you spend extra effort only on failures. Set a retry limit to control time and cost. If the task still fails, show the error and keep the parts that worked.
 
@@ -319,11 +319,11 @@ endif
 
 Metrics go into the shared page template; insights are already HTML. In the full script, the query and repair steps run only when `element.usesData` is true, so headers and guide text skip them.
 
-### Cache reusable work
+### Cache reusable work: static first, dynamic last
 
-Save work you can reuse. Keep downloaded files and prepared data so later runs do less work. Refresh saved results when their inputs change. Some model services can reuse the unchanged start of a prompt, reducing the cost of reading it again. Check cache usage to see whether this is happening.
+Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. [Prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching) can then reuse the static part even when later content changes, reducing input processing time and cost.
 
-We can add a prompt-cache key to the shared configuration from earlier:
+We can also add an optional prompt-cache key to the shared configuration from earlier:
 
 ```typescript
 const cachedFastConfig = create.Config({
@@ -336,4 +336,6 @@ const cachedFastConfig = create.Config({
 }, fastConfig);
 ```
 
-Pass this configuration when creating the SQL and rendering components. The model service decides which requests can use its cache, and the logs show cache use. We also reuse the downloaded SQLite file. Within a run, we read the database structure once and share it across tasks.
+Pass this configuration when creating the SQL and rendering components. The key does not mark the static part; OpenAI may need a message boundary or an explicit cache breakpoint there. Check the logs to confirm reuse.
+
+We also reuse the downloaded SQLite file. Within a run, we read the database structure once and share it across tasks.
