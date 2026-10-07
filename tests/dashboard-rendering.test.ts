@@ -122,7 +122,7 @@ test('the renderer receives card details and preview data without the SQL schema
 	const element = {
 		id: 'table-revenue', type: 'table', title: 'Revenue', description: 'Compare regions.',
 		usesData: true, dataRequest: 'Rank regional revenue.', requiredTables: ['sales'],
-		previewJson: JSON.stringify(rows), schemaSummary: 'QUERY_ONLY_SCHEMA',
+		rowCount: rows.length, previewJson: JSON.stringify(rows), schemaSummary: 'QUERY_ONLY_SCHEMA',
 	};
 	const template = create.Template.loadsTemplate({
 		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
@@ -135,7 +135,53 @@ test('the renderer receives card details and preview data without the SQL schema
 	assert.equal(json.title, element.title);
 	assert.equal(json.description, element.description);
 	assert.equal(json.dataRequest, element.dataRequest);
+	assert.equal(json.rowCount, element.rowCount);
 	assert.equal(json.previewJson, element.previewJson);
+});
+
+test('chart rendering receives the full row count with a five-row preview', async () => {
+	const chartRows = Array.from({ length: 9 }, (_, index) => ({ quantity: index + 1, revenue: (index + 1) * 100 }));
+	const previewJson = JSON.stringify(chartRows.slice(0, 5));
+	const rendererTemplate = create.Template.loadsTemplate({
+		loader: new FileSystemLoader(fileURLToPath(new URL('../src/templates', import.meta.url))),
+		template: 'element-renderer.md',
+	});
+	let renderCalls = 0;
+	const processor = create.Script.loadsScript({
+		loader: new FileSystemLoader(fileURLToPath(new URL('../src', import.meta.url))),
+		script: 'orchestrator.cas', schema: schemas.processedDashboard,
+		context: {
+			headerMetricPlanner: () => ({ elementStream: [] }),
+			visualPlanner: () => ({ elementStream: [{
+				id: 'quantity-revenue', type: 'chart', title: 'Revenue by quantity', description: 'Compare revenue by order quantity.',
+				usesData: true, dataRequest: 'Revenue per quantity, ordered by quantity.', requiredTables: ['sales'],
+			}] }),
+			insightTextPlanner: () => ({ elementStream: [] }),
+			sqlFromRequestGenerator: () => ({ text: 'SELECT quantity, revenue FROM sales ORDER BY quantity' }),
+			sqlRepairGenerator: () => assert.fail('The query must not need repair'),
+			database: { executeSql: () => chartRows },
+			schemaMetadataForTables: () => ({}), schemaSummaryTemplate: () => 'sales: quantity, revenue',
+			generatePreviewJson: (data: unknown[]) => JSON.stringify(data.slice(0, 5)),
+			toJson: JSON.stringify,
+			normalizeElementId: (element: types.ProcessedElement) => `${element.type}-${element.id}`,
+			fullSchemaSummary: 'sales: quantity, revenue',
+			elementRenderer: async ({ element }: { element: types.ProcessedElement }) => {
+				renderCalls++;
+				assert.equal(element.rowCount, chartRows.length);
+				assert.equal(element.previewJson, previewJson);
+				const prompt = await rendererTemplate({ element });
+				const json = JSON.parse(prompt.match(/```json\s*([\s\S]*?)\s*```/)![1]);
+				assert.equal(json.rowCount, chartRows.length);
+				assert.equal(json.previewJson, previewJson);
+				return { object: { html: '<canvas id="quantity-revenue-canvas"></canvas>', script: 'getData("chart-quantity-revenue");' } };
+			},
+		},
+	});
+	const [element] = await processor({});
+	assert.equal(renderCalls, 1);
+	assert.equal(element.rowCount, chartRows.length);
+	assert.equal(element.previewJson, previewJson);
+	assert.deepEqual(JSON.parse(`{${element.dataJson}}`)[element.id], chartRows);
 });
 
 for (const scenario of [

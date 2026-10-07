@@ -14,7 +14,9 @@ Rules:
 {% elif type == "chart" %}
 Chart:
 - For group comparisons, return one row per displayed group via `GROUP BY` (or an equivalent CTE/subquery), aggregating every metric; never raw rows with repeated labels.
-- For named categories, `ORDER BY` the main metric and `LIMIT 12`.
+- Ordered series (including string/range labels): group by period/value, order chronologically/numerically, and keep the full range. Aggregate dense series rather than truncate with `LIMIT 12`.
+- Unordered categories: `ORDER BY` the main metric and `LIMIT 12`.
+- Shares: use the whole as denominator; include all categories or combine the remainder as `Other`.
 {% elif type == "table" %}
 Table:
 - `LIMIT 20` unless the request clearly needs fewer.

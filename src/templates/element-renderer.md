@@ -21,10 +21,16 @@ Header: a richer page header, not a card. One root `<header>` or `<div>`, title 
 Chart:
 - Include a fixed-height canvas wrapper `<div style="position: relative; height: 300px; width: 100%;"><canvas ...></canvas></div>` (use 360px–480px for horizontal bars with many labels).
 - Create a Chart.js 4 chart with `responsive: true` and `maintainAspectRatio: false`, using scale ids `x`, `y`, `x2`, `y2` (never `xAxes`/`yAxes`).
-- More than 4 named categories (e.g. countries, genres, artists): horizontal bar (`indexAxis: "y"`), category labels on `scales.y` without rotation, legend hidden when there is one dataset, showing at most the first 12 ordered rows via `.slice(0, 12)`.
+- Choose chart type from the data request, preview, and `rowCount` (the full result size).
+- Use `type: "line"` for time series or ordered numeric series with >8 values, including string/range labels. Prefer lines for continuous trends with fewer points.
+- Prefer `type: "pie"` for 2-7 shares totaling 100%. Use bars to compare rates and lines over time.
+- Otherwise, bars: unordered categories or small discrete numeric comparisons/histograms (<=8 values).
+- Lines: plot all rows in chronological/numeric x order; no slicing or ranking. Use `scales.x.ticks: { autoSkip: true, maxTicksLimit: 8, maxRotation: 0 }`.
+- Line datasets: `fill: false`, `tension: 0`, `borderWidth: 2`, `pointHoverRadius: 4`; `pointRadius: 0` for >20 points, otherwise 2.
+- For bars with >4 unordered categories, use `indexAxis: "y"`, unrotated y labels, `.slice(0, 12)`, and no legend for one dataset.
 - One visible label per row; never de-duplicate with `filter`/`indexOf`/`Set`/`find` — if labels repeat, aggregate them in JS first or render a table instead.
 - Two unlike numeric datasets (e.g. counts vs averages): put the second on a secondary axis (`y2` vertical, `x2` horizontal) via its `yAxisID`/`xAxisID`, with that scale's `grid.drawOnChartArea: false`. More than two unlike measures: plot the two clearest or render a table.
-- If `previewJson` has fewer than 2 rows, render a compact metric/table-style card instead of a chart.
+- If `rowCount < 2`, render a compact metric/table-style card instead of a chart.
 {% elif element.type == "table" %}
 Table: include `<tbody>` and a script that fills rows from `getData("<id>")`.
 {% elif element.type == "text" %}
@@ -43,6 +49,7 @@ Element JSON:
 	usesData: element.usesData,
 	dataRequest: element.dataRequest,
 	requiredTables: element.requiredTables,
+	rowCount: element.rowCount,
 	previewJson: element.previewJson
 } | dump(2) }}
 ```

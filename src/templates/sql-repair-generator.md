@@ -17,7 +17,11 @@ Rules:
 {% if element.type == "metric" %}
 {% include "metric-query.md" %}
 {% elif element.type == "chart" %}
-Chart: one row per displayed group via `GROUP BY`, aggregating every metric; for named categories `ORDER BY` the main metric and `LIMIT 12`.
+Chart:
+- One row per displayed group via `GROUP BY`, aggregating every metric.
+- Ordered series (including string/range labels): group by period/value, order chronologically/numerically, and keep the full range. Aggregate dense series rather than truncate with `LIMIT 12`.
+- Unordered categories: `ORDER BY` the main metric and `LIMIT 12`.
+- Shares: use the whole as denominator; include all categories or combine the remainder as `Other`.
 {% elif element.type == "table" %}
 Table: `LIMIT 20` unless clearly fewer are needed.
 {% elif element.type == "insight" %}

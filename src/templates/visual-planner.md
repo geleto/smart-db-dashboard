@@ -7,7 +7,8 @@ Rules:
 - Do not generate SQL, HTML, or JavaScript.
 
 Charts:
-- Put the most important chart first, suited to full width: trends, ranked bars with many labels, or another dense visual. Avoid a small, low-cardinality, or secondary first chart.
+- Put the most important chart first, suited to full width: trends, rankings with many labels, or another dense visual. Avoid a small, low-cardinality, or secondary first chart.
+- Describe the analysis, grouping, and ordering; request the full relevant range. Leave chart style to the renderer.
 - For comparisons by a group (e.g. era, region, genre), request one row per displayed group with aggregate measures.
 - Distribution charts must explicitly request 4-8 named buckets, not one aggregate row or one bucket.
 - For customer value, prefer ranked top customers, value tiers, or segment tables over "customer lifetime value distribution".

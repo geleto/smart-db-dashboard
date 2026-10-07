@@ -21,6 +21,7 @@ const dashboardElementSchema = z.object({
 const processedElementSchema = dashboardElementSchema.extend({
 	metric: metricSchema.optional(),
 	previewJson: z.string().optional(),
+	rowCount: z.number().int().nonnegative().optional(),
 	contentHtml: z.string().optional(),
 	queryError: z.string().optional(),
 	html: z.string().optional(),

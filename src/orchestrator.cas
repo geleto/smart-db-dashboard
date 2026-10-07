@@ -38,6 +38,7 @@ function processElement(element)
 		element.contentHtml = textInsightGenerator(element).text
 	else
 		if element.usesData
+			element.rowCount = rows.length
 			element.previewJson = generatePreviewJson(rows)
 		endif
 		var renderedElement = elementRenderer({ element: element }).object

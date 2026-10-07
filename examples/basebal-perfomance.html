@@ -35,17 +35,14 @@
 			max-height: 360px;
 			overflow: auto;
 		}
-		.dashboard-element-metric .metric-value-number {
+		.dashboard-element-metric .metric-value {
 			display: block;
 			margin-top: 0.75rem;
-			font-size: 2.5rem !important;
-			font-weight: 700 !important;
+			font-size: 2.5rem;
+			font-weight: 700;
 			line-height: 1.1;
 		}
-		.dashboard-element-header + .dashboard-element-metric .metric-value-number {
-			font-size: 3rem !important;
-		}
-		.dashboard-element-metric [id$="-label"] {
+		.dashboard-element-metric .metric-label {
 			margin-top: 0.25rem;
 			color: var(--bs-secondary-color);
 			font-size: 0.875rem;
@@ -60,63 +57,147 @@
 			<div id="header-dashboard-header" class="col-12 dashboard-element dashboard-element-header">
 
 				<template data-dashboard-element-template="header-dashboard-header">
-<div class="mb-4"><h1 class="h3 mb-2">Baseball Team Performance Across Eras</h1><div class="text-muted">Use this dashboard to compare how team wins, scoring, pitching, and standout seasons evolved over time.</div></div>
+
+<header class="dashboard-header" aria-labelledby="header-dashboard-header-title"><div class="dashboard-header__content"><p class="dashboard-header__eyebrow">Baseball performance</p><h1 id="header-dashboard-header-title">Baseball Team Performance Across Eras</h1><p class="dashboard-header__description">Explore how team wins, scoring, and pitching varied over time, then use the charts and tables to compare seasons and eras.</p></div></header>
+
 				</template>
 
 			</div>
 
-			<div id="metric-wins" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
+			<div id="metric-average-team-wins" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
 
-				<template data-dashboard-element-template="metric-wins">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Total Team Wins</h6><div class="text-muted small mb-2">The combined number of wins by teams in the selected scope.</div><div id="metric-wins-value" class="metric-value-number">0</div></div></div>
+				<template data-dashboard-element-template="metric-average-team-wins">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h6 class="card-title fw-semibold mb-1">Average Team Wins</h6>
+
+
+							<p class="text-muted small mb-0">Shows the average wins per team-season across the dataset.</p>
+
+
+							<div class="metric-value">74.67</div>
+
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="metric-runs" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
+			<div id="metric-average-runs-scored" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
 
-				<template data-dashboard-element-template="metric-runs">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Total Runs Scored</h6><div class="text-muted small mb-2">The combined runs scored by teams in the selected scope.</div><div class="metric-value-number" id="metric-runs-value">—</div></div></div>
+				<template data-dashboard-element-template="metric-average-runs-scored">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h6 class="card-title fw-semibold mb-1">Average Runs Scored</h6>
+
+
+							<p class="text-muted small mb-0">Shows the average runs scored per team-season across the dataset.</p>
+
+
+							<div class="metric-value">681.16</div>
+
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="metric-runs-allowed" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
+			<div id="metric-average-team-era" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
 
-				<template data-dashboard-element-template="metric-runs-allowed">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Total Runs Allowed</h6><div class="text-muted small mb-2">The combined runs allowed by teams in the selected scope.</div><div id="metric-runs-allowed-value" class="metric-value-number">—</div></div></div>
+				<template data-dashboard-element-template="metric-average-team-era">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h6 class="card-title fw-semibold mb-1">Average Team ERA</h6>
+
+
+							<p class="text-muted small mb-0">Shows the average team earned run average across team-seasons.</p>
+
+
+							<div class="metric-value">3.84</div>
+
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="metric-best-season" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
+			<div id="metric-standout-season" class="col-12 col-md-6 dashboard-element dashboard-element-metric">
 
-				<template data-dashboard-element-template="metric-best-season">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Best Team Season</h6><div class="text-muted small mb-2">The single standout team season with the strongest performance in the selected scope.</div><div class="metric-value-number" id="metric-best-season-value">—</div><div class="text-muted small mt-2" id="metric-best-season-label">Team</div></div></div>
+				<template data-dashboard-element-template="metric-standout-season">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h6 class="card-title fw-semibold mb-1">Highest-Win Team Season</h6>
+
+
+							<p class="text-muted small mb-0">Identifies the team-season with the most wins, including its name, year, and win total.</p>
+
+
+							<div class="metric-value">116</div>
+
+							<div class="metric-label">Chicago Cubs · 1906</div>
+
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="chart-era-summary" class="col-12 dashboard-element dashboard-element-chart">
+			<div id="chart-era-performance" class="col-12 dashboard-element dashboard-element-chart">
 
-				<template data-dashboard-element-template="chart-era-summary">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Team Performance by Era</h6><div class="text-muted small mb-2">Compare average team wins, runs scored, and runs allowed across eras to show how overall team performance changed over time.</div><div style="position: relative; height: 420px; width: 100%;"><canvas id="chart-era-summary-canvas"></canvas></div></div></div>
+				<template data-dashboard-element-template="chart-era-performance">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h5 class="card-title fw-semibold mb-1">Team performance across eras</h5>
+
+
+							<p class="text-muted small mb-3">Show changes across the full 1871–2022 range, grouped by season year, with average team wins and runs scored per team-season. Order chronologically to reveal long-term trends.</p>
+
+
+<div style="position: relative; height: 300px; width: 100%;"><canvas id="chart-era-performance-canvas" aria-label="Average team wins and runs scored by season year"></canvas></div>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="chart-era-scorers" class="col-12 col-md-6 dashboard-element dashboard-element-chart">
+			<div id="chart-pitching-trends" class="col-12 col-md-6 dashboard-element dashboard-element-chart">
 
-				<template data-dashboard-element-template="chart-era-scorers">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Offensive Output by Era</h6><div class="text-muted small mb-3">Show how team scoring changed across eras using average runs per team season by era.</div><div style="position: relative; height: 400px; width: 100%;"><canvas id="chart-era-scorers-canvas"></canvas></div></div></div>
-				</template>
+				<template data-dashboard-element-template="chart-pitching-trends">
 
-			</div>
+					<div class="card h-100">
+						<div class="card-body">
 
-			<div id="chart-era-pitching" class="col-12 col-md-6 dashboard-element dashboard-element-chart">
+							<h5 class="card-title fw-semibold mb-1">Team pitching by season</h5>
 
-				<template data-dashboard-element-template="chart-era-pitching">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Pitching Run Prevention by Era</h6><p class="text-muted small mb-3">Show how team run prevention changed across eras using average runs allowed and team ERA by era.</p><div style="position: relative; height: 360px; width: 100%;"><canvas id="chart-era-pitching-canvas" aria-label="Pitching Run Prevention by Era" role="img"></canvas></div></div></div>
+
+							<p class="text-muted small mb-3">Track team run prevention and pitching effectiveness over the full available history, grouped chronologically by season.</p>
+
+
+<div style="position: relative; height: 300px; width: 100%;"><canvas id="chart-pitching-trends-canvas" aria-label="Average runs allowed and ERA by season" role="img"></canvas></div>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
@@ -124,15 +205,49 @@
 			<div id="table-standout-seasons" class="col-12 col-md-6 dashboard-element dashboard-element-table">
 
 				<template data-dashboard-element-template="table-standout-seasons">
-<div class="card h-100"><div class="card-body"><div class="d-flex flex-column gap-1"><div><h6 class="card-title fw-semibold mb-1">Standout Team Seasons</h6><div class="text-muted small">Rank the best individual team seasons by wins, runs scored, and run differential to highlight exceptional seasons across history.</div></div></div><div class="table-responsive mt-3"><table class="table table-hover align-middle mb-0"><thead><tr><th scope="col">Year</th><th scope="col">Team</th><th scope="col" class="text-end">Wins</th><th scope="col" class="text-end">Runs Scored</th><th scope="col" class="text-end">Runs Allowed</th><th scope="col" class="text-end">Run Differential</th><th scope="col">League</th></tr></thead><tbody id="table-standout-seasons-table-body"></tbody></table></div></div></div>
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h5 class="card-title fw-semibold mb-1">Standout team seasons</h5>
+
+
+							<p class="text-muted small mb-3">Rank the strongest team seasons by wins, with scoring and pitching measures for context.</p>
+
+
+<div class="table-responsive"><table class="table table-striped table-hover align-middle"><thead><tr><th scope="col">Year</th><th scope="col">Team</th><th scope="col">League</th><th scope="col" class="text-end">G</th><th scope="col" class="text-end">W</th><th scope="col" class="text-end">L</th><th scope="col" class="text-end">R</th><th scope="col" class="text-end">RA</th><th scope="col" class="text-end">ERA</th></tr></thead><tbody id="table-standout-seasons-table-body"></tbody></table></div>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="insight-era-shifts" class="col-12 col-md-6 dashboard-element dashboard-element-insight">
+			<div id="insight-era-team-profile" class="col-12 col-md-6 dashboard-element dashboard-element-insight">
 
-				<template data-dashboard-element-template="insight-era-shifts">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-2">Era shifts in team performance</h6><div class="text-muted small mb-3">Compare team-level wins, runs scored, runs allowed, and run differential across broad historical eras to identify how performance profiles changed over time.</div><ul class="mb-0"><li><strong>Wins rose after the dead-ball era.</strong> Average team wins jump from about <strong>53.3</strong> in <strong>1871-1900</strong> to the mid-to-high <strong>70s</strong> in every later era, peaking at about <strong>80.6</strong> in <strong>1961-1980</strong>.</li><li><strong>Scoring shifted by era, but not monotonically.</strong> Average runs scored were highest in <strong>1921-1940</strong> at about <strong>752.5</strong>, then dropped in <strong>1941-1960</strong> and <strong>1961-1980</strong>, before rising again in <strong>1981-2000</strong> and <strong>2001-2022</strong> to roughly <strong>708-713</strong>.</li><li><strong>Runs allowed closely matched runs scored in every era shown.</strong> The averages are essentially identical within each era, which means the excerpt does <strong>not</strong> show a broad era-level scoring edge from offense over pitching or vice versa.</li><li><strong>Run differential is flat in the aggregates.</strong> The reported average run differential is <strong>0 or near 0</strong> across all eras, so this excerpt suggests league-wide balance rather than a dominant scoring environment at the era level.</li><li><strong>Best overall win profile appears in the modern-mid era.</strong> Of the eras shown, <strong>1961-1980</strong> combines the highest average wins with relatively modest runs scored/allowed, while <strong>2001-2022</strong> shows slightly lower wins but higher scoring than the late 20th century.</li></ul></div></div>
+				<template data-dashboard-element-template="insight-era-team-profile">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h5 class="card-title fw-semibold mb-1">Team performance across eras</h5>
+
+
+							<p class="text-muted small mb-3">Summarizes changes in team wins, runs scored, and runs allowed across historical eras.</p>
+
+
+<ul>
+  <li>Average wins rose from <strong>25.59 per team-season in the 1870s</strong> to around 75–81 from the 1900s onward; the highest shown is <strong>80.99 in the 2010s</strong>.</li>
+  <li>Scoring peaked among these decades in the <strong>1890s at 811.07 runs</strong> per team-season, then fell to about 594 in the 1900s and 1910s.</li>
+  <li>Runs scored climbed to <strong>770.61 in the 2000s</strong>, then eased to 710.73 in the 2010s.</li>
+  <li>Average runs allowed closely match runs scored in every decade. These aggregate figures therefore show little separation between eras on that measure; they do not identify standout teams or seasons.</li>
+  <li>The 2020s excerpt has only <strong>90 team-seasons</strong> and averages 63.97 wins, so it is incomplete and not directly comparable to full decades.</li>
+</ul>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
@@ -140,15 +255,46 @@
 			<div id="insight-standout-seasons" class="col-12 col-md-6 dashboard-element dashboard-element-insight">
 
 				<template data-dashboard-element-template="insight-standout-seasons">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">Standout team seasons</h6><div class="text-muted small mb-3">Surface the most exceptional single-season team performances by wins and run differential so users can spot peak seasons while exploring era changes.</div><ul><li><strong>Best record in the excerpt:</strong> the 1906 Chicago Cubs went 116-36, the most wins shown, with a strong +323 run differential.</li><li><strong>Modern-era contender:</strong> the 2001 Seattle Mariners also won 116 games, scoring 927 runs and allowing 627, for a +300 differential.</li><li><strong>Largest run differential:</strong> the 1927 New York Yankees stand out with +376, even though they had one fewer win than the top two seasons.</li><li><strong>Other elite seasons span multiple eras:</strong> the 1998 Yankees, 2022 Dodgers, 1954 Cleveland, 1909 Pirates, and 1969 Orioles all reached at least 109 wins.</li><li><strong>Scoring vs. prevention:</strong> the biggest seasons combine high run totals with strong pitching/defense, but the balance varies—some teams won through dominant scoring (1927 NYA: 975 runs scored), while others paired solid scoring with excellent run suppression (2022 LAN: 847 scored, 513 allowed).</li></ul></div></div>
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h5 class="card-title fw-semibold mb-1">Standout team seasons</h5>
+
+
+							<p class="text-muted small mb-3">Identifies team-seasons with exceptional winning and scoring performance.</p>
+
+
+<ul>
+  <li><strong>Boston Red Stockings, 1875</strong>, top this excerpt at a .899 winning percentage (71–8) and scored 831 runs.</li>
+  <li>The St. Louis Maroons’ 1884 season ranks second at .832 (94–19), with the excerpt’s highest run total: 887.</li>
+  <li>Chicago appears three times among the listed leaders, including the 1906 Cubs, who recorded the most wins shown: 116 (116–36) at .763.</li>
+  <li>The listed seasons span 1871–1906; these results show standout records in the excerpt, but do not establish how performance changed across all eras.</li>
+</ul>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
 
-			<div id="text-reading-note" class="col-12 col-md-6 dashboard-element dashboard-element-text">
+			<div id="text-reading-the-dashboard" class="col-12 dashboard-element dashboard-element-text">
 
-				<template data-dashboard-element-template="text-reading-note">
-<div class="card h-100"><div class="card-body"><h6 class="card-title fw-semibold mb-1">How to read this section</h6><p class="text-muted small mb-0">Use this section to compare team-level season totals across time. The era view shows aggregate patterns, while the standout seasons view highlights individual peak years.</p></div></div>
+				<template data-dashboard-element-template="text-reading-the-dashboard">
+
+					<div class="card h-100">
+						<div class="card-body">
+
+							<h5 class="card-title fw-semibold mb-1">How to read this view</h5>
+
+
+
+<p>Team totals are season-level measures. Compare seasons in historical context, since the number of games played varied across years.</p>
+
+						</div>
+					</div>
+
 				</template>
 
 			</div>
@@ -162,147 +308,1843 @@
 
 
 
-		"metric-wins": [
+
+
+
+
+
+
+
+
+		"chart-era-performance": [
   {
-    "total_wins": 225144
+    "yearID": 1871,
+    "team_seasons": 9,
+    "avg_wins": 13.88888888888889,
+    "avg_runs": 295.44444444444446
+  },
+  {
+    "yearID": 1872,
+    "team_seasons": 11,
+    "avg_wins": 16.181818181818183,
+    "avg_runs": 308.1818181818182
+  },
+  {
+    "yearID": 1873,
+    "team_seasons": 9,
+    "avg_wins": 21.88888888888889,
+    "avg_runs": 397.77777777777777
+  },
+  {
+    "yearID": 1874,
+    "team_seasons": 8,
+    "avg_wins": 28.875,
+    "avg_runs": 433.75
+  },
+  {
+    "yearID": 1875,
+    "team_seasons": 13,
+    "avg_wins": 25.76923076923077,
+    "avg_runs": 325.6923076923077
+  },
+  {
+    "yearID": 1876,
+    "team_seasons": 8,
+    "avg_wins": 32.125,
+    "avg_runs": 383.25
+  },
+  {
+    "yearID": 1877,
+    "team_seasons": 6,
+    "avg_wins": 29.5,
+    "avg_runs": 340
+  },
+  {
+    "yearID": 1878,
+    "team_seasons": 6,
+    "avg_wins": 30,
+    "avg_runs": 317.3333333333333
+  },
+  {
+    "yearID": 1879,
+    "team_seasons": 8,
+    "avg_wins": 39.5,
+    "avg_runs": 426.125
+  },
+  {
+    "yearID": 1880,
+    "team_seasons": 8,
+    "avg_wins": 41.5,
+    "avg_runs": 398.875
+  },
+  {
+    "yearID": 1881,
+    "team_seasons": 8,
+    "avg_wins": 41.75,
+    "avg_runs": 428.125
+  },
+  {
+    "yearID": 1882,
+    "team_seasons": 14,
+    "avg_wins": 40.5,
+    "avg_runs": 435.14285714285717
+  },
+  {
+    "yearID": 1883,
+    "team_seasons": 16,
+    "avg_wins": 48.6875,
+    "avg_runs": 564.375
+  },
+  {
+    "yearID": 1884,
+    "team_seasons": 33,
+    "avg_wins": 45.72727272727273,
+    "avg_runs": 507.3333333333333
+  },
+  {
+    "yearID": 1885,
+    "team_seasons": 16,
+    "avg_wins": 55.375,
+    "avg_runs": 580.75
+  },
+  {
+    "yearID": 1886,
+    "team_seasons": 16,
+    "avg_wins": 64,
+    "avg_runs": 719.5
+  },
+  {
+    "yearID": 1887,
+    "team_seasons": 16,
+    "avg_wins": 64.25,
+    "avg_runs": 838.5625
+  },
+  {
+    "yearID": 1888,
+    "team_seasons": 16,
+    "avg_wins": 66.9375,
+    "avg_runs": 664.25
+  },
+  {
+    "yearID": 1889,
+    "team_seasons": 16,
+    "avg_wins": 66.5,
+    "avg_runs": 811.625
+  },
+  {
+    "yearID": 1890,
+    "team_seasons": 25,
+    "avg_wins": 63.2,
+    "avg_runs": 775.32
+  },
+  {
+    "yearID": 1891,
+    "team_seasons": 17,
+    "avg_wins": 64.11764705882354,
+    "avg_runs": 743.2352941176471
+  },
+  {
+    "yearID": 1892,
+    "team_seasons": 12,
+    "avg_wins": 75.25,
+    "avg_runs": 782.3333333333334
+  },
+  {
+    "yearID": 1893,
+    "team_seasons": 12,
+    "avg_wins": 64.41666666666667,
+    "avg_runs": 859.5833333333334
+  },
+  {
+    "yearID": 1894,
+    "team_seasons": 12,
+    "avg_wins": 65.25,
+    "avg_runs": 983
+  },
+  {
+    "yearID": 1895,
+    "team_seasons": 12,
+    "avg_wins": 65.25,
+    "avg_runs": 876.1666666666666
+  },
+  {
+    "yearID": 1896,
+    "team_seasons": 12,
+    "avg_wins": 64.83333333333333,
+    "avg_runs": 796.6666666666666
+  },
+  {
+    "yearID": 1897,
+    "team_seasons": 12,
+    "avg_wins": 65.66666666666667,
+    "avg_runs": 794.6666666666666
+  },
+  {
+    "yearID": 1898,
+    "team_seasons": 12,
+    "avg_wins": 74.75,
+    "avg_runs": 760.75
+  },
+  {
+    "yearID": 1899,
+    "team_seasons": 12,
+    "avg_wins": 75.25,
+    "avg_runs": 806
+  },
+  {
+    "yearID": 1900,
+    "team_seasons": 8,
+    "avg_wins": 69.25,
+    "avg_runs": 741.5
+  },
+  {
+    "yearID": 1901,
+    "team_seasons": 16,
+    "avg_wins": 68.4375,
+    "avg_runs": 691.6875
+  },
+  {
+    "yearID": 1902,
+    "team_seasons": 16,
+    "avg_wins": 68.3125,
+    "avg_runs": 618.8125
+  },
+  {
+    "yearID": 1903,
+    "team_seasons": 16,
+    "avg_wins": 68.6875,
+    "avg_runs": 618.25
+  },
+  {
+    "yearID": 1904,
+    "team_seasons": 16,
+    "avg_wins": 76.25,
+    "avg_runs": 581.5625
+  },
+  {
+    "yearID": 1905,
+    "team_seasons": 16,
+    "avg_wins": 76.125,
+    "avg_runs": 602.4375
+  },
+  {
+    "yearID": 1906,
+    "team_seasons": 16,
+    "avg_wins": 75.5,
+    "avg_runs": 555.0625
+  },
+  {
+    "yearID": 1907,
+    "team_seasons": 16,
+    "avg_wins": 75.1875,
+    "avg_runs": 543.9375
+  },
+  {
+    "yearID": 1908,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 526.375
+  },
+  {
+    "yearID": 1909,
+    "team_seasons": 16,
+    "avg_wins": 76.125,
+    "avg_runs": 550.625
+  },
+  {
+    "yearID": 1910,
+    "team_seasons": 16,
+    "avg_wins": 76.4375,
+    "avg_runs": 599
+  },
+  {
+    "yearID": 1911,
+    "team_seasons": 16,
+    "avg_wins": 76.125,
+    "avg_runs": 697.75
+  },
+  {
+    "yearID": 1912,
+    "team_seasons": 16,
+    "avg_wins": 76.1875,
+    "avg_runs": 697.125
+  },
+  {
+    "yearID": 1913,
+    "team_seasons": 16,
+    "avg_wins": 75.8125,
+    "avg_runs": 622.75
+  },
+  {
+    "yearID": 1914,
+    "team_seasons": 24,
+    "avg_wins": 76.54166666666667,
+    "avg_runs": 605.5
+  },
+  {
+    "yearID": 1915,
+    "team_seasons": 24,
+    "avg_wins": 76.375,
+    "avg_runs": 592.2083333333334
+  },
+  {
+    "yearID": 1916,
+    "team_seasons": 16,
+    "avg_wins": 76.6875,
+    "avg_runs": 555.5625
+  },
+  {
+    "yearID": 1917,
+    "team_seasons": 16,
+    "avg_wins": 76.5625,
+    "avg_runs": 559.25
+  },
+  {
+    "yearID": 1918,
+    "team_seasons": 16,
+    "avg_wins": 62.875,
+    "avg_runs": 461.5625
+  },
+  {
+    "yearID": 1919,
+    "team_seasons": 16,
+    "avg_wins": 69.5625,
+    "avg_runs": 541.0625
+  },
+  {
+    "yearID": 1920,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 672.625
+  },
+  {
+    "yearID": 1921,
+    "team_seasons": 16,
+    "avg_wins": 76.625,
+    "avg_runs": 745.9375
+  },
+  {
+    "yearID": 1922,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 753.6875
+  },
+  {
+    "yearID": 1923,
+    "team_seasons": 16,
+    "avg_wins": 76.625,
+    "avg_runs": 742.125
+  },
+  {
+    "yearID": 1924,
+    "team_seasons": 16,
+    "avg_wins": 76.5,
+    "avg_runs": 732.625
+  },
+  {
+    "yearID": 1925,
+    "team_seasons": 16,
+    "avg_wins": 76.5,
+    "avg_runs": 787.25
+  },
+  {
+    "yearID": 1926,
+    "team_seasons": 16,
+    "avg_wins": 76.375,
+    "avg_runs": 715.1875
+  },
+  {
+    "yearID": 1927,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 734.0625
+  },
+  {
+    "yearID": 1928,
+    "team_seasons": 16,
+    "avg_wins": 76.6875,
+    "avg_runs": 727.8125
+  },
+  {
+    "yearID": 1929,
+    "team_seasons": 16,
+    "avg_wins": 76.3125,
+    "avg_runs": 796.6875
+  },
+  {
+    "yearID": 1930,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 855.9375
+  },
+  {
+    "yearID": 1931,
+    "team_seasons": 16,
+    "avg_wins": 76.6875,
+    "avg_runs": 743.25
+  },
+  {
+    "yearID": 1932,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 757.25
+  },
+  {
+    "yearID": 1933,
+    "team_seasons": 16,
+    "avg_wins": 76,
+    "avg_runs": 686.75
+  },
+  {
+    "yearID": 1934,
+    "team_seasons": 16,
+    "avg_wins": 75.9375,
+    "avg_runs": 750
+  },
+  {
+    "yearID": 1935,
+    "team_seasons": 16,
+    "avg_wins": 76.1875,
+    "avg_runs": 751.625
+  },
+  {
+    "yearID": 1936,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 802.875
+  },
+  {
+    "yearID": 1937,
+    "team_seasons": 16,
+    "avg_wins": 76.625,
+    "avg_runs": 754.375
+  },
+  {
+    "yearID": 1938,
+    "team_seasons": 16,
+    "avg_wins": 75.4375,
+    "avg_runs": 748.0625
+  },
+  {
+    "yearID": 1939,
+    "team_seasons": 16,
+    "avg_wins": 76.3125,
+    "avg_runs": 742.25
+  },
+  {
+    "yearID": 1940,
+    "team_seasons": 16,
+    "avg_wins": 76.75,
+    "avg_runs": 723
+  },
+  {
+    "yearID": 1941,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 698
+  },
+  {
+    "yearID": 1942,
+    "team_seasons": 16,
+    "avg_wins": 75.9375,
+    "avg_runs": 624.6875
+  },
+  {
+    "yearID": 1943,
+    "team_seasons": 16,
+    "avg_wins": 76.6875,
+    "avg_runs": 605.875
+  },
+  {
+    "yearID": 1944,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 647.0625
+  },
+  {
+    "yearID": 1945,
+    "team_seasons": 16,
+    "avg_wins": 76.125,
+    "avg_runs": 642.875
+  },
+  {
+    "yearID": 1946,
+    "team_seasons": 16,
+    "avg_wins": 77.0625,
+    "avg_runs": 622.0625
+  },
+  {
+    "yearID": 1947,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 676.6875
+  },
+  {
+    "yearID": 1948,
+    "team_seasons": 16,
+    "avg_wins": 76.875,
+    "avg_runs": 708
+  },
+  {
+    "yearID": 1949,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 714.125
+  },
+  {
+    "yearID": 1950,
+    "team_seasons": 16,
+    "avg_wins": 76.875,
+    "avg_runs": 750.8125
+  },
+  {
+    "yearID": 1951,
+    "team_seasons": 16,
+    "avg_wins": 77.1875,
+    "avg_runs": 704.25
+  },
+  {
+    "yearID": 1952,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 646.8125
+  },
+  {
+    "yearID": 1953,
+    "team_seasons": 16,
+    "avg_wins": 76.8125,
+    "avg_runs": 714.125
+  },
+  {
+    "yearID": 1954,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 676.6875
+  },
+  {
+    "yearID": 1955,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 691.8125
+  },
+  {
+    "yearID": 1956,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 689.4375
+  },
+  {
+    "yearID": 1957,
+    "team_seasons": 16,
+    "avg_wins": 76.875,
+    "avg_runs": 664.75
+  },
+  {
+    "yearID": 1958,
+    "team_seasons": 16,
+    "avg_wins": 76.9375,
+    "avg_runs": 661.125
+  },
+  {
+    "yearID": 1959,
+    "team_seasons": 16,
+    "avg_wins": 77.125,
+    "avg_runs": 678.3125
+  },
+  {
+    "yearID": 1960,
+    "team_seasons": 16,
+    "avg_wins": 77,
+    "avg_runs": 666.5
+  },
+  {
+    "yearID": 1961,
+    "team_seasons": 18,
+    "avg_wins": 79.05555555555556,
+    "avg_runs": 719
+  },
+  {
+    "yearID": 1962,
+    "team_seasons": 20,
+    "avg_wins": 80.9,
+    "avg_runs": 723.05
+  },
+  {
+    "yearID": 1963,
+    "team_seasons": 20,
+    "avg_wins": 80.9,
+    "avg_runs": 639
+  },
+  {
+    "yearID": 1964,
+    "team_seasons": 20,
+    "avg_wins": 81,
+    "avg_runs": 656.2
+  },
+  {
+    "yearID": 1965,
+    "team_seasons": 20,
+    "avg_wins": 80.95,
+    "avg_runs": 647.3
+  },
+  {
+    "yearID": 1966,
+    "team_seasons": 20,
+    "avg_wins": 80.65,
+    "avg_runs": 645
+  },
+  {
+    "yearID": 1967,
+    "team_seasons": 20,
+    "avg_wins": 80.85,
+    "avg_runs": 610.5
+  },
+  {
+    "yearID": 1968,
+    "team_seasons": 20,
+    "avg_wins": 80.95,
+    "avg_runs": 555.45
+  },
+  {
+    "yearID": 1969,
+    "team_seasons": 24,
+    "avg_wins": 80.95833333333333,
+    "avg_runs": 660.4166666666666
+  },
+  {
+    "yearID": 1970,
+    "team_seasons": 24,
+    "avg_wins": 80.95833333333333,
+    "avg_runs": 703.3333333333334
+  },
+  {
+    "yearID": 1971,
+    "team_seasons": 24,
+    "avg_wins": 80.70833333333333,
+    "avg_runs": 628.0416666666666
+  },
+  {
+    "yearID": 1972,
+    "team_seasons": 24,
+    "avg_wins": 77.41666666666667,
+    "avg_runs": 571.0833333333334
+  },
+  {
+    "yearID": 1973,
+    "team_seasons": 24,
+    "avg_wins": 80.91666666666667,
+    "avg_runs": 682.3333333333334
+  },
+  {
+    "yearID": 1974,
+    "team_seasons": 24,
+    "avg_wins": 80.875,
+    "avg_runs": 668.5833333333334
+  },
+  {
+    "yearID": 1975,
+    "team_seasons": 24,
+    "avg_wins": 80.54166666666667,
+    "avg_runs": 678.9583333333334
+  },
+  {
+    "yearID": 1976,
+    "team_seasons": 24,
+    "avg_wins": 80.79166666666667,
+    "avg_runs": 645.5
+  },
+  {
+    "yearID": 1977,
+    "team_seasons": 26,
+    "avg_wins": 80.88461538461539,
+    "avg_runs": 723.1923076923077
+  },
+  {
+    "yearID": 1978,
+    "team_seasons": 26,
+    "avg_wins": 80.84615384615384,
+    "avg_runs": 663.5
+  },
+  {
+    "yearID": 1979,
+    "team_seasons": 26,
+    "avg_wins": 80.65384615384616,
+    "avg_runs": 719.7307692307693
+  },
+  {
+    "yearID": 1980,
+    "team_seasons": 26,
+    "avg_wins": 80.8076923076923,
+    "avg_runs": 694.3461538461538
+  },
+  {
+    "yearID": 1981,
+    "team_seasons": 26,
+    "avg_wins": 53.42307692307692,
+    "avg_runs": 428.7307692307692
+  },
+  {
+    "yearID": 1982,
+    "team_seasons": 26,
+    "avg_wins": 81,
+    "avg_runs": 696.5384615384615
+  },
+  {
+    "yearID": 1983,
+    "team_seasons": 26,
+    "avg_wins": 81,
+    "avg_runs": 698.8461538461538
+  },
+  {
+    "yearID": 1984,
+    "team_seasons": 26,
+    "avg_wins": 80.92307692307692,
+    "avg_runs": 689.2692307692307
+  },
+  {
+    "yearID": 1985,
+    "team_seasons": 26,
+    "avg_wins": 80.8076923076923,
+    "avg_runs": 700.6153846153846
+  },
+  {
+    "yearID": 1986,
+    "team_seasons": 26,
+    "avg_wins": 80.84615384615384,
+    "avg_runs": 713.2692307692307
+  },
+  {
+    "yearID": 1987,
+    "team_seasons": 26,
+    "avg_wins": 80.96153846153847,
+    "avg_runs": 764.7307692307693
+  },
+  {
+    "yearID": 1988,
+    "team_seasons": 26,
+    "avg_wins": 80.6923076923077,
+    "avg_runs": 668.4615384615385
+  },
+  {
+    "yearID": 1989,
+    "team_seasons": 26,
+    "avg_wins": 80.88461538461539,
+    "avg_runs": 669.4230769230769
+  },
+  {
+    "yearID": 1990,
+    "team_seasons": 26,
+    "avg_wins": 80.96153846153847,
+    "avg_runs": 689.1923076923077
+  },
+  {
+    "yearID": 1991,
+    "team_seasons": 26,
+    "avg_wins": 80.92307692307692,
+    "avg_runs": 697.1923076923077
+  },
+  {
+    "yearID": 1992,
+    "team_seasons": 26,
+    "avg_wins": 81,
+    "avg_runs": 666.9615384615385
+  },
+  {
+    "yearID": 1993,
+    "team_seasons": 28,
+    "avg_wins": 81,
+    "avg_runs": 745.1428571428571
+  },
+  {
+    "yearID": 1994,
+    "team_seasons": 28,
+    "avg_wins": 57.107142857142854,
+    "avg_runs": 562.5714285714286
+  },
+  {
+    "yearID": 1995,
+    "team_seasons": 28,
+    "avg_wins": 72,
+    "avg_runs": 698.3571428571429
+  },
+  {
+    "yearID": 1996,
+    "team_seasons": 28,
+    "avg_wins": 80.92857142857143,
+    "avg_runs": 815.3928571428571
+  },
+  {
+    "yearID": 1997,
+    "team_seasons": 28,
+    "avg_wins": 80.92857142857143,
+    "avg_runs": 771.5714285714286
+  },
+  {
+    "yearID": 1998,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 776.5666666666667
+  },
+  {
+    "yearID": 1999,
+    "team_seasons": 30,
+    "avg_wins": 80.9,
+    "avg_runs": 823.0333333333333
+  },
+  {
+    "yearID": 2000,
+    "team_seasons": 30,
+    "avg_wins": 80.93333333333334,
+    "avg_runs": 832.3666666666667
+  },
+  {
+    "yearID": 2001,
+    "team_seasons": 30,
+    "avg_wins": 80.93333333333334,
+    "avg_runs": 773.3
+  },
+  {
+    "yearID": 2002,
+    "team_seasons": 30,
+    "avg_wins": 80.83333333333333,
+    "avg_runs": 746.9333333333333
+  },
+  {
+    "yearID": 2003,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 765.9333333333333
+  },
+  {
+    "yearID": 2004,
+    "team_seasons": 30,
+    "avg_wins": 80.93333333333334,
+    "avg_runs": 779.2
+  },
+  {
+    "yearID": 2005,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 744.1666666666666
+  },
+  {
+    "yearID": 2006,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 786.6333333333333
+  },
+  {
+    "yearID": 2007,
+    "team_seasons": 30,
+    "avg_wins": 81.03333333333333,
+    "avg_runs": 777.4
+  },
+  {
+    "yearID": 2008,
+    "team_seasons": 30,
+    "avg_wins": 80.93333333333334,
+    "avg_runs": 752.8333333333334
+  },
+  {
+    "yearID": 2009,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 747.3
+  },
+  {
+    "yearID": 2010,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 710.2666666666667
+  },
+  {
+    "yearID": 2011,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 693.6
+  },
+  {
+    "yearID": 2012,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 700.5666666666667
+  },
+  {
+    "yearID": 2013,
+    "team_seasons": 30,
+    "avg_wins": 81.03333333333333,
+    "avg_runs": 675.1666666666666
+  },
+  {
+    "yearID": 2014,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 658.7
+  },
+  {
+    "yearID": 2015,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 688.2333333333333
+  },
+  {
+    "yearID": 2016,
+    "team_seasons": 30,
+    "avg_wins": 80.9,
+    "avg_runs": 724.8
+  },
+  {
+    "yearID": 2017,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 752.7333333333333
+  },
+  {
+    "yearID": 2018,
+    "team_seasons": 30,
+    "avg_wins": 81.03333333333333,
+    "avg_runs": 721
+  },
+  {
+    "yearID": 2019,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 782.2333333333333
+  },
+  {
+    "yearID": 2020,
+    "team_seasons": 30,
+    "avg_wins": 29.933333333333334,
+    "avg_runs": 278.1333333333333
+  },
+  {
+    "yearID": 2021,
+    "team_seasons": 30,
+    "avg_wins": 80.96666666666667,
+    "avg_runs": 733.6666666666666
+  },
+  {
+    "yearID": 2022,
+    "team_seasons": 30,
+    "avg_wins": 81,
+    "avg_runs": 693.9
   }
 ],
 
 
 
-		"metric-runs": [
+		"chart-pitching-trends": [
   {
-    "total_runs_scored": 2053694
-  }
-],
-
-
-
-		"metric-runs-allowed": [
-  {
-    "total_runs_allowed": 2053691
-  }
-],
-
-
-
-		"metric-best-season": [
-  {
-    "team_name": "Chicago Cubs",
-    "year": 1906,
-    "win_total": 116
-  }
-],
-
-
-
-		"chart-era-summary": [
-  {
-    "era": "1871-1900",
-    "avg_team_wins": 53.32114882506527,
-    "avg_runs_scored": 631.6631853785901,
-    "avg_runs_allowed": 631.6631853785901
+    "yearID": 1871,
+    "avg_ra": 295.44444444444446,
+    "avg_era": 4.271111111111111,
+    "team_seasons": 9
   },
   {
-    "era": "1901-1920",
-    "avg_team_wins": 74.17857142857143,
-    "avg_runs_scored": 594.8571428571429,
-    "avg_runs_allowed": 594.8482142857143
+    "yearID": 1872,
+    "avg_ra": 308.1818181818182,
+    "avg_era": 4.283636363636363,
+    "team_seasons": 11
   },
   {
-    "era": "1921-1940",
-    "avg_team_wins": 76.4875,
-    "avg_runs_scored": 752.5375,
-    "avg_runs_allowed": 752.5375
+    "yearID": 1873,
+    "avg_ra": 397.77777777777777,
+    "avg_era": 3.888888888888889,
+    "team_seasons": 9
   },
   {
-    "era": "1941-1960",
-    "avg_team_wins": 76.8625,
-    "avg_runs_scored": 674.2,
-    "avg_runs_allowed": 674.2
+    "yearID": 1874,
+    "avg_ra": 433.75,
+    "avg_era": 2.22125,
+    "team_seasons": 8
   },
   {
-    "era": "1961-1980",
-    "avg_team_wins": 80.58590308370044,
-    "avg_runs_scored": 663.0176211453745,
-    "avg_runs_allowed": 663.0176211453745
+    "yearID": 1875,
+    "avg_ra": 325.6923076923077,
+    "avg_era": 2.376923076923077,
+    "team_seasons": 13
   },
   {
-    "era": "1981-2000",
-    "avg_team_wins": 77.91328413284133,
-    "avg_runs_scored": 707.9852398523985,
-    "avg_runs_allowed": 707.9852398523985
+    "yearID": 1876,
+    "avg_ra": 383.25,
+    "avg_era": 2.32875,
+    "team_seasons": 8
   },
   {
-    "era": "2001-2022",
-    "avg_team_wins": 78.6530303030303,
-    "avg_runs_scored": 713.0318181818182,
-    "avg_runs_allowed": 713.0318181818182
-  }
-],
-
-
-
-		"chart-era-scorers": [
-  {
-    "era": "1871-1919",
-    "avg_team_runs_scored": 613.1351351351351,
-    "team_seasons": 703
+    "yearID": 1877,
+    "avg_ra": 340,
+    "avg_era": 2.8233333333333337,
+    "team_seasons": 6
   },
   {
-    "era": "1920-1945",
-    "avg_team_runs_scored": 728.5336538461538,
-    "team_seasons": 416
+    "yearID": 1878,
+    "avg_ra": 317.3333333333333,
+    "avg_era": 2.305,
+    "team_seasons": 6
   },
   {
-    "era": "1946-1969",
-    "avg_team_runs_scored": 669.5971563981043,
-    "team_seasons": 422
+    "yearID": 1879,
+    "avg_ra": 426.125,
+    "avg_era": 2.5125,
+    "team_seasons": 8
   },
   {
-    "era": "1970-1999",
-    "avg_team_runs_scored": 690.6186224489796,
-    "team_seasons": 784
+    "yearID": 1880,
+    "avg_ra": 398.875,
+    "avg_era": 2.38625,
+    "team_seasons": 8
   },
   {
-    "era": "2000-2022",
-    "avg_team_runs_scored": 718.2202898550725,
-    "team_seasons": 690
-  }
-],
-
-
-
-		"chart-era-pitching": [
-  {
-    "era": "1920-1940",
-    "avg_runs_allowed": 748.7321428571429,
-    "avg_team_era": 1920
+    "yearID": 1881,
+    "avg_ra": 428.125,
+    "avg_era": 2.77625,
+    "team_seasons": 8
   },
   {
-    "era": "2000-2022",
-    "avg_runs_allowed": 718.2202898550725,
-    "avg_team_era": 2000
+    "yearID": 1882,
+    "avg_ra": 435.14285714285717,
+    "avg_era": 2.810714285714286,
+    "team_seasons": 14
   },
   {
-    "era": "1980-1999",
-    "avg_runs_allowed": 700.3903345724907,
-    "avg_team_era": 1980
+    "yearID": 1883,
+    "avg_ra": 564.375,
+    "avg_era": 3.219375,
+    "team_seasons": 16
   },
   {
-    "era": "1941-1960",
-    "avg_runs_allowed": 674.2,
-    "avg_team_era": 1941
+    "yearID": 1884,
+    "avg_ra": 507.3333333333333,
+    "avg_era": 3.190909090909091,
+    "team_seasons": 33
   },
   {
-    "era": "1961-1979",
-    "avg_runs_allowed": 661.1144859813085,
-    "avg_team_era": 1961
+    "yearID": 1885,
+    "avg_ra": 580.75,
+    "avg_era": 3.04125,
+    "team_seasons": 16
   },
   {
-    "era": "1871-1919",
-    "avg_runs_allowed": 613.1351351351351,
-    "avg_team_era": 1871
+    "yearID": 1886,
+    "avg_ra": 719.5,
+    "avg_era": 3.366875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1887,
+    "avg_ra": 838.5625,
+    "avg_era": 4.174375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1888,
+    "avg_ra": 664.25,
+    "avg_era": 2.954375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1889,
+    "avg_ra": 811.625,
+    "avg_era": 3.9387499999999998,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1890,
+    "avg_ra": 775.32,
+    "avg_era": 3.9063999999999997,
+    "team_seasons": 25
+  },
+  {
+    "yearID": 1891,
+    "avg_ra": 743.2352941176471,
+    "avg_era": 3.481176470588235,
+    "team_seasons": 17
+  },
+  {
+    "yearID": 1892,
+    "avg_ra": 782.3333333333334,
+    "avg_era": 3.2875,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1893,
+    "avg_ra": 859.5833333333334,
+    "avg_era": 4.673333333333333,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1894,
+    "avg_ra": 983,
+    "avg_era": 5.335,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1895,
+    "avg_ra": 876.1666666666666,
+    "avg_era": 4.779166666666667,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1896,
+    "avg_ra": 796.6666666666666,
+    "avg_era": 4.364166666666667,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1897,
+    "avg_ra": 794.6666666666666,
+    "avg_era": 4.306666666666667,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1898,
+    "avg_ra": 760.75,
+    "avg_era": 3.606666666666667,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1899,
+    "avg_ra": 806,
+    "avg_era": 3.8608333333333333,
+    "team_seasons": 12
+  },
+  {
+    "yearID": 1900,
+    "avg_ra": 741.5,
+    "avg_era": 3.6950000000000003,
+    "team_seasons": 8
+  },
+  {
+    "yearID": 1901,
+    "avg_ra": 691.6875,
+    "avg_era": 3.49125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1902,
+    "avg_ra": 618.8125,
+    "avg_era": 3.18,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1903,
+    "avg_ra": 618.25,
+    "avg_era": 3.114375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1904,
+    "avg_ra": 581.5625,
+    "avg_era": 2.665,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1905,
+    "avg_ra": 602.4375,
+    "avg_era": 2.82625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1906,
+    "avg_ra": 554.875,
+    "avg_era": 2.66125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1907,
+    "avg_ra": 543.9375,
+    "avg_era": 2.505625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1908,
+    "avg_ra": 526.375,
+    "avg_era": 2.36875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1909,
+    "avg_ra": 550.625,
+    "avg_era": 2.535,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1910,
+    "avg_ra": 599,
+    "avg_era": 2.771875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1911,
+    "avg_ra": 697.75,
+    "avg_era": 3.366875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1912,
+    "avg_ra": 697.125,
+    "avg_era": 3.37,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1913,
+    "avg_ra": 622.75,
+    "avg_era": 3.065625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1914,
+    "avg_ra": 605.5,
+    "avg_era": 2.910833333333333,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1915,
+    "avg_ra": 592.2083333333334,
+    "avg_era": 2.90625,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1916,
+    "avg_ra": 555.5625,
+    "avg_era": 2.723125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1917,
+    "avg_ra": 559.25,
+    "avg_era": 2.685,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1918,
+    "avg_ra": 461.5625,
+    "avg_era": 2.769375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1919,
+    "avg_ra": 541.0625,
+    "avg_era": 3.06875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1920,
+    "avg_ra": 672.625,
+    "avg_era": 3.461875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1921,
+    "avg_ra": 745.9375,
+    "avg_era": 4.03125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1922,
+    "avg_ra": 753.6875,
+    "avg_era": 4.066875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1923,
+    "avg_ra": 742.125,
+    "avg_era": 3.98875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1924,
+    "avg_ra": 732.625,
+    "avg_era": 4.05,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1925,
+    "avg_ra": 787.25,
+    "avg_era": 4.3325,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1926,
+    "avg_ra": 715.1875,
+    "avg_era": 3.92375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1927,
+    "avg_ra": 734.0625,
+    "avg_era": 4.02875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1928,
+    "avg_ra": 727.8125,
+    "avg_era": 4.0181249999999995,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1929,
+    "avg_ra": 796.6875,
+    "avg_era": 4.476875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1930,
+    "avg_ra": 855.9375,
+    "avg_era": 4.808125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1931,
+    "avg_ra": 743.25,
+    "avg_era": 4.123125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1932,
+    "avg_ra": 757.25,
+    "avg_era": 4.181875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1933,
+    "avg_ra": 686.75,
+    "avg_era": 3.8125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1934,
+    "avg_ra": 750,
+    "avg_era": 4.285625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1935,
+    "avg_ra": 751.625,
+    "avg_era": 4.23875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1936,
+    "avg_ra": 802.875,
+    "avg_era": 4.530625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1937,
+    "avg_ra": 754.375,
+    "avg_era": 4.266875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1938,
+    "avg_ra": 748.0625,
+    "avg_era": 4.290625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1939,
+    "avg_ra": 742.25,
+    "avg_era": 4.271875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1940,
+    "avg_ra": 723,
+    "avg_era": 4.12,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1941,
+    "avg_ra": 698,
+    "avg_era": 3.894375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1942,
+    "avg_ra": 624.6875,
+    "avg_era": 3.490625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1943,
+    "avg_ra": 605.875,
+    "avg_era": 3.34125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1944,
+    "avg_ra": 647.0625,
+    "avg_era": 3.525,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1945,
+    "avg_ra": 642.875,
+    "avg_era": 3.58375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1946,
+    "avg_ra": 622.0625,
+    "avg_era": 3.4625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1947,
+    "avg_ra": 676.6875,
+    "avg_era": 3.885,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1948,
+    "avg_ra": 708,
+    "avg_era": 4.12625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1949,
+    "avg_ra": 714.125,
+    "avg_era": 4.12375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1950,
+    "avg_ra": 750.8125,
+    "avg_era": 4.3637500000000005,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1951,
+    "avg_ra": 704.25,
+    "avg_era": 4.044375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1952,
+    "avg_ra": 646.8125,
+    "avg_era": 3.704375,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1953,
+    "avg_ra": 714.125,
+    "avg_era": 4.13875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1954,
+    "avg_ra": 676.6875,
+    "avg_era": 3.9012499999999997,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1955,
+    "avg_ra": 691.8125,
+    "avg_era": 3.99875,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1956,
+    "avg_ra": 689.4375,
+    "avg_era": 3.9675,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1957,
+    "avg_ra": 664.75,
+    "avg_era": 3.83625,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1958,
+    "avg_ra": 661.125,
+    "avg_era": 3.86,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1959,
+    "avg_ra": 678.3125,
+    "avg_era": 3.908125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1960,
+    "avg_ra": 666.5,
+    "avg_era": 3.818125,
+    "team_seasons": 16
+  },
+  {
+    "yearID": 1961,
+    "avg_ra": 719,
+    "avg_era": 4.028888888888889,
+    "team_seasons": 18
+  },
+  {
+    "yearID": 1962,
+    "avg_ra": 723.05,
+    "avg_era": 3.9579999999999997,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1963,
+    "avg_ra": 639,
+    "avg_era": 3.46,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1964,
+    "avg_ra": 656.2,
+    "avg_era": 3.5840000000000005,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1965,
+    "avg_ra": 647.3,
+    "avg_era": 3.501,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1966,
+    "avg_ra": 645,
+    "avg_era": 3.522,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1967,
+    "avg_ra": 610.5,
+    "avg_era": 3.3055,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1968,
+    "avg_ra": 555.45,
+    "avg_era": 2.983,
+    "team_seasons": 20
+  },
+  {
+    "yearID": 1969,
+    "avg_ra": 660.4166666666666,
+    "avg_era": 3.6108333333333333,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1970,
+    "avg_ra": 703.3333333333334,
+    "avg_era": 3.8820833333333336,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1971,
+    "avg_ra": 628.0416666666666,
+    "avg_era": 3.4637499999999997,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1972,
+    "avg_ra": 571.0833333333334,
+    "avg_era": 3.2587499999999996,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1973,
+    "avg_ra": 682.3333333333334,
+    "avg_era": 3.7395833333333335,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1974,
+    "avg_ra": 668.5833333333334,
+    "avg_era": 3.6179166666666664,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1975,
+    "avg_ra": 678.9583333333334,
+    "avg_era": 3.700833333333333,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1976,
+    "avg_ra": 645.5,
+    "avg_era": 3.5108333333333337,
+    "team_seasons": 24
+  },
+  {
+    "yearID": 1977,
+    "avg_ra": 723.1923076923077,
+    "avg_era": 3.9915384615384615,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1978,
+    "avg_ra": 663.5,
+    "avg_era": 3.6769230769230767,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1979,
+    "avg_ra": 719.7307692307693,
+    "avg_era": 3.992692307692308,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1980,
+    "avg_ra": 694.3461538461538,
+    "avg_era": 3.835769230769231,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1981,
+    "avg_ra": 428.7307692307692,
+    "avg_era": 3.5819230769230765,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1982,
+    "avg_ra": 696.5384615384615,
+    "avg_era": 3.8561538461538465,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1983,
+    "avg_ra": 698.8461538461538,
+    "avg_era": 3.8615384615384616,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1984,
+    "avg_ra": 689.2692307692307,
+    "avg_era": 3.8061538461538458,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1985,
+    "avg_ra": 700.6153846153846,
+    "avg_era": 3.893076923076923,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1986,
+    "avg_ra": 713.2692307692307,
+    "avg_era": 3.964230769230769,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1987,
+    "avg_ra": 764.7307692307693,
+    "avg_era": 4.284230769230769,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1988,
+    "avg_ra": 668.4615384615385,
+    "avg_era": 3.7284615384615383,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1989,
+    "avg_ra": 669.4230769230769,
+    "avg_era": 3.7057692307692305,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1990,
+    "avg_ra": 689.1923076923077,
+    "avg_era": 3.855,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1991,
+    "avg_ra": 697.1923076923077,
+    "avg_era": 3.9046153846153846,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1992,
+    "avg_ra": 666.9615384615385,
+    "avg_era": 3.738846153846154,
+    "team_seasons": 26
+  },
+  {
+    "yearID": 1993,
+    "avg_ra": 745.1428571428571,
+    "avg_era": 4.182142857142857,
+    "team_seasons": 28
+  },
+  {
+    "yearID": 1994,
+    "avg_ra": 562.5714285714286,
+    "avg_era": 4.5060714285714285,
+    "team_seasons": 28
+  },
+  {
+    "yearID": 1995,
+    "avg_ra": 698.3571428571429,
+    "avg_era": 4.4475,
+    "team_seasons": 28
+  },
+  {
+    "yearID": 1996,
+    "avg_ra": 815.3928571428571,
+    "avg_era": 4.606071428571428,
+    "team_seasons": 28
+  },
+  {
+    "yearID": 1997,
+    "avg_ra": 771.5714285714286,
+    "avg_era": 4.385357142857143,
+    "team_seasons": 28
+  },
+  {
+    "yearID": 1998,
+    "avg_ra": 776.5666666666667,
+    "avg_era": 4.426333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 1999,
+    "avg_ra": 823.0333333333333,
+    "avg_era": 4.701333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2000,
+    "avg_ra": 832.3666666666667,
+    "avg_era": 4.762333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2001,
+    "avg_ra": 773.3,
+    "avg_era": 4.412999999999999,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2002,
+    "avg_ra": 746.9333333333333,
+    "avg_era": 4.272,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2003,
+    "avg_ra": 765.9333333333333,
+    "avg_era": 4.395666666666667,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2004,
+    "avg_ra": 779.2,
+    "avg_era": 4.458333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2005,
+    "avg_ra": 744.1666666666666,
+    "avg_era": 4.284666666666666,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2006,
+    "avg_ra": 786.6333333333333,
+    "avg_era": 4.5216666666666665,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2007,
+    "avg_ra": 777.4,
+    "avg_era": 4.462666666666666,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2008,
+    "avg_ra": 752.8333333333334,
+    "avg_era": 4.316666666666666,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2009,
+    "avg_ra": 747.3,
+    "avg_era": 4.313999999999999,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2010,
+    "avg_ra": 710.2666666666667,
+    "avg_era": 4.073333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2011,
+    "avg_ra": 693.6,
+    "avg_era": 3.9366666666666665,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2012,
+    "avg_ra": 700.5666666666667,
+    "avg_era": 4.009333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2013,
+    "avg_ra": 675.1666666666666,
+    "avg_era": 3.8633333333333337,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2014,
+    "avg_ra": 658.7,
+    "avg_era": 3.738,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2015,
+    "avg_ra": 688.2333333333333,
+    "avg_era": 3.9563333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2016,
+    "avg_ra": 724.8,
+    "avg_era": 4.184333333333333,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2017,
+    "avg_ra": 752.7333333333333,
+    "avg_era": 4.352666666666667,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2018,
+    "avg_ra": 721,
+    "avg_era": 4.148,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2019,
+    "avg_ra": 782.2333333333333,
+    "avg_era": 4.497,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2020,
+    "avg_ra": 278.1333333333333,
+    "avg_era": 4.447666666666667,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2021,
+    "avg_ra": 733.6666666666666,
+    "avg_era": 4.263333333333334,
+    "team_seasons": 30
+  },
+  {
+    "yearID": 2022,
+    "avg_ra": 693.9,
+    "avg_era": 3.9650000000000003,
+    "team_seasons": 30
   }
 ],
 
@@ -310,335 +2152,285 @@
 
 		"table-standout-seasons": [
   {
-    "year": 1906,
-    "team_name": "Chicago Cubs",
-    "wins": 116,
-    "runs_scored": 704,
-    "runs_allowed": 381,
-    "run_differential": 323,
-    "league": "NL"
+    "yearID": 2001,
+    "name": "Seattle Mariners",
+    "lgID": "AL",
+    "G": 162,
+    "W": 116,
+    "L": 46,
+    "R": 927,
+    "RA": 627,
+    "ERA": 3.54
   },
   {
-    "year": 2001,
-    "team_name": "Seattle Mariners",
-    "wins": 116,
-    "runs_scored": 927,
-    "runs_allowed": 627,
-    "run_differential": 300,
-    "league": "AL"
+    "yearID": 1906,
+    "name": "Chicago Cubs",
+    "lgID": "NL",
+    "G": 154,
+    "W": 116,
+    "L": 36,
+    "R": 704,
+    "RA": 381,
+    "ERA": 1.75
   },
   {
-    "year": 1998,
-    "team_name": "New York Yankees",
-    "wins": 114,
-    "runs_scored": 965,
-    "runs_allowed": 656,
-    "run_differential": 309,
-    "league": "AL"
+    "yearID": 1998,
+    "name": "New York Yankees",
+    "lgID": "AL",
+    "G": 162,
+    "W": 114,
+    "L": 48,
+    "R": 965,
+    "RA": 656,
+    "ERA": 3.82
   },
   {
-    "year": 2022,
-    "team_name": "Los Angeles Dodgers",
-    "wins": 111,
-    "runs_scored": 847,
-    "runs_allowed": 513,
-    "run_differential": 334,
-    "league": "NL"
+    "yearID": 2022,
+    "name": "Los Angeles Dodgers",
+    "lgID": "NL",
+    "G": 162,
+    "W": 111,
+    "L": 51,
+    "R": 847,
+    "RA": 513,
+    "ERA": 2.8
   },
   {
-    "year": 1954,
-    "team_name": "Cleveland Indians",
-    "wins": 111,
-    "runs_scored": 746,
-    "runs_allowed": 504,
-    "run_differential": 242,
-    "league": "AL"
+    "yearID": 1954,
+    "name": "Cleveland Indians",
+    "lgID": "AL",
+    "G": 156,
+    "W": 111,
+    "L": 43,
+    "R": 746,
+    "RA": 504,
+    "ERA": 2.78
   },
   {
-    "year": 1927,
-    "team_name": "New York Yankees",
-    "wins": 110,
-    "runs_scored": 975,
-    "runs_allowed": 599,
-    "run_differential": 376,
-    "league": "AL"
+    "yearID": 1927,
+    "name": "New York Yankees",
+    "lgID": "AL",
+    "G": 155,
+    "W": 110,
+    "L": 44,
+    "R": 975,
+    "RA": 599,
+    "ERA": 3.2
   },
   {
-    "year": 1909,
-    "team_name": "Pittsburgh Pirates",
-    "wins": 110,
-    "runs_scored": 699,
-    "runs_allowed": 447,
-    "run_differential": 252,
-    "league": "NL"
+    "yearID": 1909,
+    "name": "Pittsburgh Pirates",
+    "lgID": "NL",
+    "G": 154,
+    "W": 110,
+    "L": 42,
+    "R": 699,
+    "RA": 447,
+    "ERA": 2.07
   },
   {
-    "year": 1969,
-    "team_name": "Baltimore Orioles",
-    "wins": 109,
-    "runs_scored": 779,
-    "runs_allowed": 517,
-    "run_differential": 262,
-    "league": "AL"
+    "yearID": 1961,
+    "name": "New York Yankees",
+    "lgID": "AL",
+    "G": 163,
+    "W": 109,
+    "L": 53,
+    "R": 827,
+    "RA": 612,
+    "ERA": 3.46
   },
   {
-    "year": 1961,
-    "team_name": "New York Yankees",
-    "wins": 109,
-    "runs_scored": 827,
-    "runs_allowed": 612,
-    "run_differential": 215,
-    "league": "AL"
+    "yearID": 1969,
+    "name": "Baltimore Orioles",
+    "lgID": "AL",
+    "G": 162,
+    "W": 109,
+    "L": 53,
+    "R": 779,
+    "RA": 517,
+    "ERA": 2.83
   },
   {
-    "year": 1975,
-    "team_name": "Cincinnati Reds",
-    "wins": 108,
-    "runs_scored": 840,
-    "runs_allowed": 586,
-    "run_differential": 254,
-    "league": "NL"
+    "yearID": 2018,
+    "name": "Boston Red Sox",
+    "lgID": "AL",
+    "G": 162,
+    "W": 108,
+    "L": 54,
+    "R": 876,
+    "RA": 647,
+    "ERA": 3.75
   },
   {
-    "year": 2018,
-    "team_name": "Boston Red Sox",
-    "wins": 108,
-    "runs_scored": 876,
-    "runs_allowed": 647,
-    "run_differential": 229,
-    "league": "AL"
+    "yearID": 1975,
+    "name": "Cincinnati Reds",
+    "lgID": "NL",
+    "G": 162,
+    "W": 108,
+    "L": 54,
+    "R": 840,
+    "RA": 586,
+    "ERA": 3.37
   },
   {
-    "year": 1970,
-    "team_name": "Baltimore Orioles",
-    "wins": 108,
-    "runs_scored": 792,
-    "runs_allowed": 574,
-    "run_differential": 218,
-    "league": "AL"
+    "yearID": 1970,
+    "name": "Baltimore Orioles",
+    "lgID": "AL",
+    "G": 162,
+    "W": 108,
+    "L": 54,
+    "R": 792,
+    "RA": 574,
+    "ERA": 3.15
   },
   {
-    "year": 1986,
-    "team_name": "New York Mets",
-    "wins": 108,
-    "runs_scored": 783,
-    "runs_allowed": 578,
-    "run_differential": 205,
-    "league": "NL"
+    "yearID": 1986,
+    "name": "New York Mets",
+    "lgID": "NL",
+    "G": 162,
+    "W": 108,
+    "L": 54,
+    "R": 783,
+    "RA": 578,
+    "ERA": 3.11
   },
   {
-    "year": 2019,
-    "team_name": "Houston Astros",
-    "wins": 107,
-    "runs_scored": 920,
-    "runs_allowed": 640,
-    "run_differential": 280,
-    "league": "AL"
+    "yearID": 1932,
+    "name": "New York Yankees",
+    "lgID": "AL",
+    "G": 156,
+    "W": 107,
+    "L": 47,
+    "R": 1002,
+    "RA": 724,
+    "ERA": 3.98
   },
   {
-    "year": 1932,
-    "team_name": "New York Yankees",
-    "wins": 107,
-    "runs_scored": 1002,
-    "runs_allowed": 724,
-    "run_differential": 278,
-    "league": "AL"
+    "yearID": 2019,
+    "name": "Houston Astros",
+    "lgID": "AL",
+    "G": 162,
+    "W": 107,
+    "L": 55,
+    "R": 920,
+    "RA": 640,
+    "ERA": 3.66
   },
   {
-    "year": 1931,
-    "team_name": "Philadelphia Athletics",
-    "wins": 107,
-    "runs_scored": 858,
-    "runs_allowed": 626,
-    "run_differential": 232,
-    "league": "AL"
+    "yearID": 1931,
+    "name": "Philadelphia Athletics",
+    "lgID": "AL",
+    "G": 153,
+    "W": 107,
+    "L": 45,
+    "R": 858,
+    "RA": 626,
+    "ERA": 3.47
   },
   {
-    "year": 2021,
-    "team_name": "San Francisco Giants",
-    "wins": 107,
-    "runs_scored": 804,
-    "runs_allowed": 594,
-    "run_differential": 210,
-    "league": "NL"
+    "yearID": 2021,
+    "name": "San Francisco Giants",
+    "lgID": "NL",
+    "G": 162,
+    "W": 107,
+    "L": 55,
+    "R": 804,
+    "RA": 594,
+    "ERA": 3.24
   },
   {
-    "year": 1907,
-    "team_name": "Chicago Cubs",
-    "wins": 107,
-    "runs_scored": 574,
-    "runs_allowed": 390,
-    "run_differential": 184,
-    "league": "NL"
+    "yearID": 1907,
+    "name": "Chicago Cubs",
+    "lgID": "NL",
+    "G": 155,
+    "W": 107,
+    "L": 45,
+    "R": 574,
+    "RA": 390,
+    "ERA": 1.73
   },
   {
-    "year": 1939,
-    "team_name": "New York Yankees",
-    "wins": 106,
-    "runs_scored": 967,
-    "runs_allowed": 556,
-    "run_differential": 411,
-    "league": "AL"
+    "yearID": 1939,
+    "name": "New York Yankees",
+    "lgID": "AL",
+    "G": 152,
+    "W": 106,
+    "L": 45,
+    "R": 967,
+    "RA": 556,
+    "ERA": 3.31
   },
   {
-    "year": 1942,
-    "team_name": "St. Louis Cardinals",
-    "wins": 106,
-    "runs_scored": 755,
-    "runs_allowed": 482,
-    "run_differential": 273,
-    "league": "NL"
+    "yearID": 2019,
+    "name": "Los Angeles Dodgers",
+    "lgID": "NL",
+    "G": 162,
+    "W": 106,
+    "L": 56,
+    "R": 886,
+    "RA": 613,
+    "ERA": 3.37
+  },
+  {
+    "yearID": 2021,
+    "name": "Los Angeles Dodgers",
+    "lgID": "NL",
+    "G": 162,
+    "W": 106,
+    "L": 56,
+    "R": 830,
+    "RA": 561,
+    "ERA": 3.01
+  },
+  {
+    "yearID": 1998,
+    "name": "Atlanta Braves",
+    "lgID": "NL",
+    "G": 162,
+    "W": 106,
+    "L": 56,
+    "R": 826,
+    "RA": 581,
+    "ERA": 3.25
+  },
+  {
+    "yearID": 1942,
+    "name": "St. Louis Cardinals",
+    "lgID": "NL",
+    "G": 156,
+    "W": 106,
+    "L": 48,
+    "R": 755,
+    "RA": 482,
+    "ERA": 2.55
+  },
+  {
+    "yearID": 1904,
+    "name": "New York Giants",
+    "lgID": "NL",
+    "G": 157,
+    "W": 106,
+    "L": 47,
+    "R": 744,
+    "RA": 474,
+    "ERA": 2.17
+  },
+  {
+    "yearID": 2022,
+    "name": "Houston Astros",
+    "lgID": "AL",
+    "G": 162,
+    "W": 106,
+    "L": 56,
+    "R": 737,
+    "RA": 518,
+    "ERA": 2.9
   }
 ],
 
 
 
-		"insight-era-shifts": [
-  {
-    "era_label": "1871-1900",
-    "avg_team_wins": 53.32114882506527,
-    "avg_runs_scored": 631.6631853785901,
-    "avg_runs_allowed": 631.6631853785901,
-    "avg_run_differential": 0
-  },
-  {
-    "era_label": "1901-1920",
-    "avg_team_wins": 74.17857142857143,
-    "avg_runs_scored": 594.8571428571429,
-    "avg_runs_allowed": 594.8482142857143,
-    "avg_run_differential": 0.008928571428571428
-  },
-  {
-    "era_label": "1921-1940",
-    "avg_team_wins": 76.4875,
-    "avg_runs_scored": 752.5375,
-    "avg_runs_allowed": 752.5375,
-    "avg_run_differential": 0
-  },
-  {
-    "era_label": "1941-1960",
-    "avg_team_wins": 76.8625,
-    "avg_runs_scored": 674.2,
-    "avg_runs_allowed": 674.2,
-    "avg_run_differential": 0
-  },
-  {
-    "era_label": "1961-1980",
-    "avg_team_wins": 80.58590308370044,
-    "avg_runs_scored": 663.0176211453745,
-    "avg_runs_allowed": 663.0176211453745,
-    "avg_run_differential": 0
-  },
-  {
-    "era_label": "1981-2000",
-    "avg_team_wins": 77.91328413284133,
-    "avg_runs_scored": 707.9852398523985,
-    "avg_runs_allowed": 707.9852398523985,
-    "avg_run_differential": 0
-  },
-  {
-    "era_label": "2001-2022",
-    "avg_team_wins": 78.6530303030303,
-    "avg_runs_scored": 713.0318181818182,
-    "avg_runs_allowed": 713.0318181818182,
-    "avg_run_differential": 0
-  }
-],
 
-
-
-		"insight-standout-seasons": [
-  {
-    "year": 1906,
-    "team": "CHN",
-    "wins": 116,
-    "losses": 36,
-    "runs_scored": 704,
-    "runs_allowed": 381,
-    "run_differential": 323
-  },
-  {
-    "year": 2001,
-    "team": "SEA",
-    "wins": 116,
-    "losses": 46,
-    "runs_scored": 927,
-    "runs_allowed": 627,
-    "run_differential": 300
-  },
-  {
-    "year": 1998,
-    "team": "NYA",
-    "wins": 114,
-    "losses": 48,
-    "runs_scored": 965,
-    "runs_allowed": 656,
-    "run_differential": 309
-  },
-  {
-    "year": 2022,
-    "team": "LAN",
-    "wins": 111,
-    "losses": 51,
-    "runs_scored": 847,
-    "runs_allowed": 513,
-    "run_differential": 334
-  },
-  {
-    "year": 1954,
-    "team": "CLE",
-    "wins": 111,
-    "losses": 43,
-    "runs_scored": 746,
-    "runs_allowed": 504,
-    "run_differential": 242
-  },
-  {
-    "year": 1927,
-    "team": "NYA",
-    "wins": 110,
-    "losses": 44,
-    "runs_scored": 975,
-    "runs_allowed": 599,
-    "run_differential": 376
-  },
-  {
-    "year": 1909,
-    "team": "PIT",
-    "wins": 110,
-    "losses": 42,
-    "runs_scored": 699,
-    "runs_allowed": 447,
-    "run_differential": 252
-  },
-  {
-    "year": 1969,
-    "team": "BAL",
-    "wins": 109,
-    "losses": 53,
-    "runs_scored": 779,
-    "runs_allowed": 517,
-    "run_differential": 262
-  },
-  {
-    "year": 1961,
-    "team": "NYA",
-    "wins": 109,
-    "losses": 53,
-    "runs_scored": 827,
-    "runs_allowed": 612,
-    "run_differential": 215
-  },
-  {
-    "year": 1975,
-    "team": "CIN",
-    "wins": 108,
-    "losses": 54,
-    "runs_scored": 840,
-    "runs_allowed": 586,
-    "run_differential": 254
-  }
-],
 
 
 
@@ -678,58 +2470,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+
+
+
+
+
+
+
 		{
-			id: "metric-wins",
-			script: "const row = firstRow('metric-wins');\nconst value = row && row['total_wins'] != null ? row['total_wins'] : 0;\nconst el = document.getElementById('metric-wins-value');\nif (el) {\n  el.textContent = formatNumber(value, 0);\n}",
+			id: "chart-era-performance",
+			script: "const rows = getData(\"chart-era-performance\");\nconst canvas = document.getElementById(\"chart-era-performance-canvas\");\nif (rows.length < 2) {\n  const row = firstRow(\"chart-era-performance\");\n  canvas.parentElement.innerHTML = row\n    ? `<div style=\"padding: 12px;\"><strong>${escapeHtml(row.yearID)}</strong><div>Average wins: ${formatNumber(row.avg_wins, 2)}</div><div>Average runs: ${formatNumber(row.avg_runs, 2)}</div><div>Team-seasons: ${formatNumber(row.team_seasons, 0)}</div></div>`\n    : \"<div>No season data available.</div>\";\n} else {\n  const ordered = rows.slice().sort((a, b) => Number(a.yearID) - Number(b.yearID));\n  new Chart(canvas, {\n    type: \"line\",\n    data: {\n      labels: ordered.map(row => row.yearID),\n      datasets: [\n        {\n          label: \"Average wins per team-season\",\n          data: ordered.map(row => row.avg_wins),\n          yAxisID: \"y\",\n          borderColor: \"#2563eb\",\n          backgroundColor: \"#2563eb\",\n          fill: false,\n          tension: 0,\n          borderWidth: 2,\n          pointHoverRadius: 4,\n          pointRadius: 0\n        },\n        {\n          label: \"Average runs per team-season\",\n          data: ordered.map(row => row.avg_runs),\n          yAxisID: \"y2\",\n          borderColor: \"#e87924\",\n          backgroundColor: \"#e87924\",\n          fill: false,\n          tension: 0,\n          borderWidth: 2,\n          pointHoverRadius: 4,\n          pointRadius: 0\n        }\n      ]\n    },\n    options: {\n      responsive: true,\n      maintainAspectRatio: false,\n      interaction: { mode: \"index\", intersect: false },\n      scales: {\n        x: {\n          ticks: { autoSkip: true, maxTicksLimit: 8, maxRotation: 0 },\n          title: { display: true, text: \"Season year\" }\n        },\n        y: {\n          type: \"linear\",\n          position: \"left\",\n          title: { display: true, text: \"Average wins\" }\n        },\n        y2: {\n          type: \"linear\",\n          position: \"right\",\n          title: { display: true, text: \"Average runs\" },\n          grid: { drawOnChartArea: false }\n        }\n      }\n    }\n  });\n}",
 		},
 
 
 
 		{
-			id: "metric-runs",
-			script: "const dataKey = \"metric-runs\";\nconst row = firstRow(dataKey);\nif (row) {\n  const value = row[\"total_runs_scored\"];\n  const el = document.getElementById(\"metric-runs-value\");\n  if (el) {\n    el.textContent = (typeof value === \"number\") ? formatNumber(value, 0) : \"—\";\n  }\n}",
-		},
-
-
-
-		{
-			id: "metric-runs-allowed",
-			script: "const rows = getData(\"metric-runs-allowed\");\nconst row = rows && rows.length ? firstRow(\"metric-runs-allowed\") : null;\nconst value = row && row.total_runs_allowed != null ? row.total_runs_allowed : null;\ndocument.getElementById(\"metric-runs-allowed-value\").textContent = value != null ? formatNumber(value, 0) : \"—\";",
-		},
-
-
-
-		{
-			id: "metric-best-season",
-			script: "const key = \"metric-best-season\";\nconst row = firstRow(key);\nif (row) {\n  const valueEl = document.getElementById(key + \"-value\");\n  const labelEl = document.getElementById(key + \"-label\");\n  if (valueEl) valueEl.textContent = formatNumber(row[\"win_total\"], 0);\n  if (labelEl) labelEl.textContent = row[\"team_name\"] + \" (\" + formatNumber(row[\"year\"], 0) + \")\";\n}",
-		},
-
-
-
-		{
-			id: "chart-era-summary",
-			script: "const rows = getData(\"chart-era-summary\") || [];\nconst canvas = document.getElementById(\"chart-era-summary-canvas\");\nif (!canvas) {\n  return;\n}\nif (!rows || rows.length < 2) {\n  const cardBody = canvas.closest('.card-body');\n  if (cardBody) {\n    cardBody.innerHTML = \"\";\n    const r = firstRow(\"chart-era-summary\") || {};\n    const era = r.era != null ? escapeHtml(String(r.era)) : \"\";\n    const wins = r.avg_team_wins;\n    const scored = r.avg_runs_scored;\n    const allowed = r.avg_runs_allowed;\n    cardBody.innerHTML = `\n      <div class=\"text-muted small mb-2\">Team Performance by Era</div>\n      <div class=\"fw-semibold mb-1\">${era}</div>\n      <div class=\"small mb-1\">Avg Wins: ${wins == null ? '-' : formatNumber(wins, 1)}</div>\n      <div class=\"small mb-1\">Avg Runs Scored: ${scored == null ? '-' : formatNumber(scored, 1)}</div>\n      <div class=\"small\">Avg Runs Allowed: ${allowed == null ? '-' : formatNumber(allowed, 1)}</div>\n    `;\n  }\n} else {\n  const ordered = rows.slice(0, 12);\n  const labels = ordered.map(r => r.era == null ? '' : String(r.era));\n  const avgWins = ordered.map(r => (r.avg_team_wins == null ? null : Number(r.avg_team_wins)));\n  const avgRunsScored = ordered.map(r => (r.avg_runs_scored == null ? null : Number(r.avg_runs_scored)));\n  const avgRunsAllowed = ordered.map(r => (r.avg_runs_allowed == null ? null : Number(r.avg_runs_allowed)));\n\n  const hasAllowedDifferent = ordered.some((r, i) => {\n    const a = r.avg_runs_allowed;\n    const s = r.avg_runs_scored;\n    return a != null && s != null && Number(a) !== Number(s);\n  });\n\n  const datasets = [];\n  datasets.push({\n    label: \"Avg Wins\",\n    data: avgWins,\n    backgroundColor: \"rgba(13, 110, 253, 0.55)\",\n    borderColor: \"rgba(13, 110, 253, 1)\",\n    borderWidth: 1,\n    yAxisID: \"y\",\n    xAxisID: \"x\"\n  });\n\n  if (hasAllowedDifferent) {\n    datasets.push({\n      label: \"Avg Runs Scored\",\n      data: avgRunsScored,\n      backgroundColor: \"rgba(25, 135, 84, 0.55)\",\n      borderColor: \"rgba(25, 135, 84, 1)\",\n      borderWidth: 1,\n      yAxisID: \"y\",\n      xAxisID: \"x2\"\n    });\n    datasets.push({\n      label: \"Avg Runs Allowed\",\n      data: avgRunsAllowed,\n      backgroundColor: \"rgba(220, 53, 69, 0.45)\",\n      borderColor: \"rgba(220, 53, 69, 1)\",\n      borderWidth: 1,\n      yAxisID: \"y\",\n      xAxisID: \"x2\"\n    });\n  } else {\n    datasets.push({\n      label: \"Avg Runs\",\n      data: avgRunsScored,\n      backgroundColor: \"rgba(25, 135, 84, 0.55)\",\n      borderColor: \"rgba(25, 135, 84, 1)\",\n      borderWidth: 1,\n      yAxisID: \"y\",\n      xAxisID: \"x2\"\n    });\n  }\n\n  const chartId = \"chart-era-summary-chart\";\n  if (canvas.dataset.chartInstance === '1') {\n    canvas._chart && canvas._chart.destroy();\n  }\n\n  const ctx = canvas.getContext('2d');\n  const config = {\n    type: 'bar',\n    data: {\n      labels,\n      datasets\n    },\n    options: {\n      responsive: true,\n      maintainAspectRatio: false,\n      indexAxis: 'y',\n      plugins: {\n        legend: {\n          display: datasets.length > 1\n        },\n        tooltip: {\n          callbacks: {\n            label: function(context) {\n              const val = context.parsed.x;\n              if (val == null || Number.isNaN(val)) return `${context.dataset.label}: -`;\n              return `${context.dataset.label}: ${formatNumber(val, 1)}`;\n            }\n          }\n        }\n      },\n      scales: {\n        y: {\n          grid: {\n            display: false\n          },\n          ticks: {\n            autoSkip: false\n          }\n        },\n        x: {\n          beginAtZero: true,\n          ticks: {\n            callback: function(value) {\n              return formatNumber(value, 0);\n            }\n          }\n        },\n        x2: {\n          beginAtZero: true,\n          position: 'top',\n          grid: {\n            drawOnChartArea: false\n          },\n          ticks: {\n            callback: function(value) {\n              return formatNumber(value, 0);\n            }\n          }\n        }\n      }\n    }\n  };\n\n  canvas.dataset.chartInstance = '1';\n  canvas._chart = new Chart(ctx, config);\n}",
-		},
-
-
-
-		{
-			id: "chart-era-scorers",
-			script: "const key = \"chart-era-scorers\";\nconst rows = getData(key) || [];\nconst ctx = document.getElementById(\"chart-era-scorers-canvas\");\nif (!ctx) {\n  return;\n}\n\nconst dataRows = rows.slice(0, 12);\n\nconst labels = dataRows.map(r => r.era);\nconst avgRuns = dataRows.map(r => r.avg_team_runs_scored);\nconst teamSeasons = dataRows.map(r => r.team_seasons);\n\nconst hasSecondDataset = avgRuns.length > 0 && teamSeasons.length > 0;\n\nconst chartType = \"bar\";\n\nconst chartConfig = {\n  type: chartType,\n  data: {\n    labels: labels,\n    datasets: hasSecondDataset\n      ? [\n          {\n            label: \"Avg Team Runs Scored\",\n            data: avgRuns,\n            backgroundColor: \"rgba(13, 110, 253, 0.45)\",\n            borderColor: \"rgba(13, 110, 253, 1)\",\n            borderWidth: 1,\n            yAxisID: \"y\",\n            xAxisID: \"x\",\n            order: 1\n          },\n          {\n            label: \"Team Seasons\",\n            data: teamSeasons,\n            backgroundColor: \"rgba(25, 135, 84, 0.35)\",\n            borderColor: \"rgba(25, 135, 84, 1)\",\n            borderWidth: 1,\n            yAxisID: \"y2\",\n            xAxisID: \"x2\",\n            order: 0\n          }\n        ]\n      : [\n          {\n            label: \"Avg Team Runs Scored\",\n            data: avgRuns,\n            backgroundColor: \"rgba(13, 110, 253, 0.45)\",\n            borderColor: \"rgba(13, 110, 253, 1)\",\n            borderWidth: 1,\n            yAxisID: \"y\",\n            xAxisID: \"x\",\n            order: 1\n          }\n        ]\n  },\n  options: {\n    responsive: true,\n    maintainAspectRatio: false,\n    indexAxis: \"y\",\n    interaction: {\n      mode: \"nearest\",\n      intersect: false\n    },\n    plugins: {\n      legend: {\n        display: false\n      },\n      tooltip: {\n        callbacks: {\n          label: function(context) {\n            const label = context.dataset && context.dataset.label ? context.dataset.label : \"\";\n            const val = context.raw;\n            if (context.dataset && context.dataset.yAxisID === \"y2\") {\n              return (label ? label + \": \" : \"\") + formatNumber(val, 0);\n            }\n            return (label ? label + \": \" : \"\") + formatNumber(val, 2);\n          }\n        }\n      }\n    },\n    scales: {\n      x: {\n        id: \"x\",\n        beginAtZero: true,\n        grid: {\n          drawOnChartArea: true\n        },\n        ticks: {\n          callback: function(value) {\n            return formatNumber(value, 0);\n          }\n        }\n      },\n      y: {\n        id: \"y\",\n        grid: {\n          display: false\n        },\n        ticks: {\n          autoSkip: false,\n          maxRotation: 0,\n          minRotation: 0\n        }\n      },\n      x2: {\n        id: \"x2\",\n        beginAtZero: true,\n        grid: {\n          drawOnChartArea: false\n        },\n        ticks: {\n          callback: function(value) {\n            return formatNumber(value, 0);\n          }\n        }\n      },\n      y2: {\n        id: \"y2\",\n        position: \"right\",\n        grid: {\n          drawOnChartArea: false\n        },\n        ticks: {\n          display: false\n        }\n      }\n    }\n  }\n};\n\nnew Chart(ctx, chartConfig);",
-		},
-
-
-
-		{
-			id: "chart-era-pitching",
-			script: "const key = \"chart-era-pitching\";\nconst rows = getData(key) || [];\nconst el = document.getElementById(key + \"-canvas\");\nif (!el) {\n  return;\n}\nif (!rows || rows.length < 2) {\n  const container = el.closest('.card-body');\n  if (container && !container.querySelector('#' + key + '-fallback')) {\n    const fallback = document.createElement('div');\n    fallback.id = key + '-fallback';\n    fallback.className = 'small text-muted';\n    fallback.textContent = 'Not enough data to render the chart.';\n    container.appendChild(fallback);\n  }\n  return;\n}\n\nconst ordered = rows.slice(0);\nordered.sort((a, b) => {\n  const ay = a['avg_team_era'];\n  const by = b['avg_team_era'];\n  const an = typeof ay === 'number' ? ay : Number(ay);\n  const bn = typeof by === 'number' ? by : Number(by);\n  if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;\n  return 0;\n});\n\nconst sliced = ordered.slice(0, 12);\nconst labels = sliced.map(r => r['era']);\nconst avgRunsAllowed = sliced.map(r => r['avg_runs_allowed']);\nconst avgTeamEra = sliced.map(r => r['avg_team_era']);\n\nconst ctx = el.getContext('2d');\n\nconst chart = new Chart(ctx, {\n  type: 'bar',\n  data: {\n    labels,\n    datasets: [\n      {\n        label: 'Avg Runs Allowed',\n        data: avgRunsAllowed,\n        borderWidth: 0,\n        backgroundColor: 'rgba(13, 110, 253, 0.65)',\n        yAxisID: 'y',\n        xAxisID: 'x'\n      },\n      {\n        label: 'Team ERA Start Year (avg_team_era)',\n        data: avgTeamEra,\n        borderWidth: 0,\n        backgroundColor: 'rgba(25, 135, 84, 0.55)',\n        yAxisID: 'y',\n        xAxisID: 'x2'\n      }\n    ]\n  },\n  options: {\n    responsive: true,\n    maintainAspectRatio: false,\n    indexAxis: 'y',\n    plugins: {\n      legend: {\n        display: sliced.length >= 1\n      },\n      tooltip: {\n        callbacks: {\n          label: function(context) {\n            const v = context.parsed.x;\n            if (context.datasetIndex === 0) {\n              return 'Avg Runs Allowed: ' + formatNumber(v, 2);\n            }\n            return 'Team ERA Start Year: ' + formatNumber(v, 0);\n          }\n        }\n      }\n    },\n    scales: {\n      x: {\n        beginAtZero: true,\n        grid: {\n          drawOnChartArea: true\n        },\n        ticks: {\n          callback: function(value) {\n            return formatNumber(value, 0);\n          }\n        }\n      },\n      x2: {\n        position: 'top',\n        beginAtZero: true,\n        grid: {\n          drawOnChartArea: false\n        },\n        ticks: {\n          callback: function(value) {\n            return formatNumber(value, 0);\n          }\n        }\n      },\n      y: {\n        grid: {\n          display: false\n        },\n        ticks: {\n          autoSkip: false,\n          maxRotation: 0,\n          minRotation: 0\n        }\n      }\n    }\n  }\n});",
+			id: "chart-pitching-trends",
+			script: "const rows = getData(\"chart-pitching-trends\");\nconst canvas = document.getElementById(\"chart-pitching-trends-canvas\");\nif (rows && rows.length >= 2 && canvas) {\n  const orderedRows = [...rows].sort((a, b) => Number(a.yearID) - Number(b.yearID));\n  new Chart(canvas, {\n    type: \"line\",\n    data: {\n      labels: orderedRows.map(row => String(row.yearID)),\n      datasets: [\n        {\n          label: \"Average runs allowed\",\n          data: orderedRows.map(row => Number(row.avg_ra)),\n          yAxisID: \"y\",\n          borderColor: \"#2563eb\",\n          backgroundColor: \"#2563eb\",\n          fill: false,\n          tension: 0,\n          borderWidth: 2,\n          pointRadius: 0,\n          pointHoverRadius: 4\n        },\n        {\n          label: \"Average ERA\",\n          data: orderedRows.map(row => Number(row.avg_era)),\n          yAxisID: \"y2\",\n          borderColor: \"#ea580c\",\n          backgroundColor: \"#ea580c\",\n          fill: false,\n          tension: 0,\n          borderWidth: 2,\n          pointRadius: 0,\n          pointHoverRadius: 4\n        }\n      ]\n    },\n    options: {\n      responsive: true,\n      maintainAspectRatio: false,\n      interaction: { mode: \"index\", intersect: false },\n      scales: {\n        x: {\n          ticks: { autoSkip: true, maxTicksLimit: 8, maxRotation: 0 },\n          title: { display: true, text: \"Season\" }\n        },\n        y: {\n          type: \"linear\",\n          position: \"left\",\n          title: { display: true, text: \"Average runs allowed\" }\n        },\n        y2: {\n          type: \"linear\",\n          position: \"right\",\n          title: { display: true, text: \"Average ERA\" },\n          grid: { drawOnChartArea: false }\n        }\n      }\n    }\n  });\n}",
 		},
 
 
 
 		{
 			id: "table-standout-seasons",
-			script: "const rows = getData(\"table-standout-seasons\") || [];\nconst tbody = document.getElementById(\"table-standout-seasons-table-body\");\ntbody.innerHTML = \"\";\nconst slice = rows.slice(0, 15);\nfor (const r of slice) {\n  const tr = document.createElement(\"tr\");\n\n  const tdYear = document.createElement(\"td\");\n  tdYear.textContent = r.year;\n  tr.appendChild(tdYear);\n\n  const tdTeam = document.createElement(\"td\");\n  tdTeam.textContent = r.team_name;\n  tr.appendChild(tdTeam);\n\n  const tdWins = document.createElement(\"td\");\n  tdWins.className = \"text-end\";\n  tdWins.textContent = formatNumber(r.wins, 0);\n  tr.appendChild(tdWins);\n\n  const tdRunsScored = document.createElement(\"td\");\n  tdRunsScored.className = \"text-end\";\n  tdRunsScored.textContent = formatNumber(r.runs_scored, 0);\n  tr.appendChild(tdRunsScored);\n\n  const tdRunsAllowed = document.createElement(\"td\");\n  tdRunsAllowed.className = \"text-end\";\n  tdRunsAllowed.textContent = formatNumber(r.runs_allowed, 0);\n  tr.appendChild(tdRunsAllowed);\n\n  const tdDiff = document.createElement(\"td\");\n  tdDiff.className = \"text-end\";\n  tdDiff.textContent = formatNumber(r.run_differential, 0);\n  tr.appendChild(tdDiff);\n\n  const tdLeague = document.createElement(\"td\");\n  tdLeague.textContent = r.league;\n  tr.appendChild(tdLeague);\n\n  tbody.appendChild(tr);\n}",
+			script: "const rows = getData(\"table-standout-seasons\") || [];\nconst tbody = document.getElementById(\"table-standout-seasons-table-body\");\ntbody.innerHTML = rows.map(row => `<tr><td>${escapeHtml(row.yearID)}</td><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.lgID)}</td><td class=\"text-end\">${formatNumber(row.G, 0)}</td><td class=\"text-end\">${formatNumber(row.W, 0)}</td><td class=\"text-end\">${formatNumber(row.L, 0)}</td><td class=\"text-end\">${formatNumber(row.R, 0)}</td><td class=\"text-end\">${formatNumber(row.RA, 0)}</td><td class=\"text-end\">${formatNumber(row.ERA, 2)}</td></tr>`).join(\"\");",
 		},
 
 
