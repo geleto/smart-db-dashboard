@@ -1,8 +1,17 @@
-# Smart DB Dashboard
+# Cheap, Fast, Concurrent: AI Agents on a Budget
 
 Turn plain-English questions about any SQLite database into dashboards with metrics, charts, tables, and insights.
 Renders a dashboard in under 15 seconds at a cost of less than half a cent.
+Timings assume warm caches; run the dashboard several times first.
 
+Read [the article](article.md) for the design and implementation details.
+
+## How it works
+
+1. Prepare the SQLite database and read its schema.
+2. Start three planners concurrently: headers and metrics, charts and tables, and insights and text.
+3. As cards arrive, query their data, repair failures, and build their content.
+4. Arrange the cards and save the HTML page.
 
 ## Setup
 
@@ -81,6 +90,7 @@ total cost. `database.prepare()` ensures the local file is ready, reusing an
 existing copy. Timing starts immediately before `database.open()` opens that
 file in SQLite and ends when the dashboard HTML is saved. Schema profiling and
 dashboard generation are included; file preparation and browser launch are excluded.
+Run the dashboard several times to warm the caches before comparing timings.
 Model prices in `src/setup.ts` are manual estimates using standard rates;
 Luna rates apply up to 272K input tokens.
 
