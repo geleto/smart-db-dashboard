@@ -4,14 +4,14 @@
 
 We built [Smart DB Dashboard](https://github.com/geleto/smart-db-dashboard), an AI agent that turns a SQLite database and a question in plain English into an interactive dashboard with metrics, charts, tables, and insights. It plans the content, queries the data, and generates the page in **under 15 seconds** for **less than half a US cent ($0.005)** in estimated model cost. This article explains the methods behind that speed and efficiency.
 
-The reported timing assumes warm caches. Run the dashboard several times first.
+The reported timing and cost assume warm caches. Run the dashboard several times first.
 
 Here are four example dashboards, with their datasets and the requests used to generate them:
 
 | Dashboard | Dataset | User request |
 | --- | --- | --- |
-| [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/basebal-perfomance.html) | **Lahman**: historical baseball statistics from 1871 to 2022, including teams, players, batting, pitching, and postseason records. | "Explore how baseball team performance changed across eras, including wins, scoring, pitching, and standout seasons." |
-| [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-perfomance.html) | **Chinook**: a sample music store database with artists, albums, tracks, genres, customers, and sales invoices. | "Analyze our catalog performance by genre, artist, album, and track so we can prioritize content and promotion decisions." |
+| [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/baseball-performance.html) | **Lahman**: historical baseball statistics from 1871 to 2022, including teams, players, batting, pitching, and postseason records. | "Explore how baseball team performance changed across eras, including wins, scoring, pitching, and standout seasons." |
+| [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-performance.html) | **Chinook**: a sample music store database with artists, albums, tracks, genres, customers, and sales invoices. | "Analyze our catalog performance by genre, artist, album, and track so we can prioritize content and promotion decisions." |
 | [Film catalog demand](https://geleto.github.io/smart-db-dashboard/examples/film-demand.html) | **Sakila**: a sample DVD rental store database with films, actors, categories, inventory, customers, rentals, and payments. | "Analyze film catalog demand by category, rating, rental duration, replacement cost, actors, and store inventory to identify notable viewing patterns." |
 | [Taxonomic coverage](https://geleto.github.io/smart-db-dashboard/examples/taxonomic-coverage.html) | **ITIS**: a taxonomy database with scientific and common names, ranks, hierarchy records, and synonyms across animals, plants, fungi, and microbes. | "Explore taxonomic coverage across kingdoms, ranks, major groups, and hierarchy depth to understand what kinds of organisms are represented." |
 
@@ -23,6 +23,10 @@ Here are four example dashboards, with their datasets and the requests used to g
 4. Arrange the cards and save the HTML page.
 
 ## How we make it fast and efficient
+
+We don't give a strong model tools, such as listing tables and running SQL, and let it work in a loop until the dashboard is done. That would work, but it would use many more tokens, at a higher price per token. Each turn sends the growing conversation back to the model, so the schema, queries, and results are paid for again and again, and each step waits for the one before it.
+
+Instead, code sets the order of the steps, and the model makes only the decisions that need judgment: what to show, how to query it, how to chart it, and what the results mean. Each decision is a small, separate call to a fast, inexpensive model, with only the context that job needs. Independent calls run at the same time. Code does the rest: running queries, formatting values, and laying out the page.
 
 These are the main methods:
 
@@ -40,15 +44,15 @@ These are the main methods:
 
 The code examples use [Casai](https://github.com/geleto/casai) to define tasks and [Cascada](https://github.com/geleto/cascada/blob/master/docs/cascada/script.md) to run them. The same ideas work with other libraries.
 
-The examples follow the Lahman baseball dashboard.
+The examples and numbers come from the Lahman baseball dashboard.
 
 We introduce the model settings and Casai components first, then show that workflow. The snippets reuse the project's setup: `loader` reads files, `input` holds the dataset details and user request, and `database` accesses SQLite. Prompt links lead to the full instructions.
 
 ### Match the model to the task
 
-Choose a model and reasoning level that fit the job. Drafting a simple query needs less thought than planning a dashboard or fixing a broken query. Test the settings on real requests and compare time, cost, and results, including retries.
+We use one inexpensive model, [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) ($0.10 per million input tokens, $0.50 per million output tokens), at two reasoning levels: `none` for SQL drafts and rendering, and `low` for planning, repairs, and insights. Drafting a query needs less thought than planning a dashboard or fixing a broken query. Test settings like these on real requests and compare time, cost, and results, including retries.
 
-Casai's `Config` lets tasks share settings. We use [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) with reasoning set to `none` for SQL drafts and rendering, and `low` for planning, repairs, and insights.
+Casai's `Config` lets tasks share settings:
 
 ```typescript
 const fastConfig = create.Config({
@@ -65,9 +69,7 @@ The second configuration keeps the same model and changes the reasoning setting.
 
 ### Divide the work into focused tasks
 
-Give each task one clear job: decide what to show, write a query, or build a chart. Each task gets a simpler prompt and can be checked on its own. If one fails, retry it without starting over. Extra model calls take time and cost money, so split the work only when it helps.
-
-Our dashboard breaks the work into these tasks:
+Our dashboard splits the work into seven tasks, each with one clear job:
 
 - **Plan the content:** choose metrics, charts, tables, and insights.
 - **Write queries:** generate SQL for each item that needs data.
@@ -76,6 +78,8 @@ Our dashboard breaks the work into these tasks:
 - **Write insights:** explain what the results show.
 - **Render cards:** format metrics and build charts and tables.
 - **Assemble the page:** combine the cards into the dashboard.
+
+Running queries and assembling the page need no model. Each of the other tasks gets a short prompt, can be checked on its own, and can be retried without starting over. Every model call costs time and money, so split the work only where it helps.
 
 Casai provides `Config` for shared settings and these **components** for defining and connecting those tasks:
 
@@ -94,24 +98,33 @@ Casai provides `Config` for shared settings and these **components** for definin
 - `withScript`: generate the prompt by running a Cascada script written in code.
 - `loadsScript`: load a Cascada script from a file.
 
-Our insight writer turns query results into short HTML. It uses the shared `reasoningConfig` and a shortened [prompt](src/templates/text-insight-generator.md). The prompt is a Cascada template: `{{ previewJson }}` outputs the result preview supplied when the component is called.
+Prompts are Cascada templates: the values passed when a component is called, such as a card's `dataRequest`, fill in their placeholders.
+
+Each task in our dashboard is its own component. A `Script` connects them: its `context` makes the components available to our [orchestrator script](src/orchestrator.cas), along with plain functions that need no model. The script calls them like functions, and its `schema` checks the finished cards:
 
 ```typescript
-// Render the template into a prompt before calling the model.
-const insightWriter = create.TextGenerator.withTemplate({
-  prompt: `
-Write 3–5 short takeaways supported only by these query results.
-Return HTML using p, ul, li, and strong; no wrapper or scripts.
-Results: {{ previewJson }}
-`,
-}, reasoningConfig);
+const dashboardProcessor = create.Script.loadsScript({
+  loader, script: 'orchestrator.cas',
+  context: {
+    headerMetricPlanner, visualPlanner, insightTextPlanner,
+    sqlFromRequestGenerator, sqlRepairGenerator,
+    textInsightGenerator, elementRenderer,
+    // Regular code: no model calls.
+    schemaSummaryTemplate, generatePreviewJson,
+  },
+  schema: schemas.processedDashboard, // Check the script's result.
+});
+// Pass this run's database and schema details.
+const cards = await dashboardProcessor({
+  database, fullSchemaSummary, schemaMetadataForTables,
+});
 ```
 
-`withTemplate` renders the template to generate the prompt. The generator returns HTML in `text`.
+The sections below define these components and show the parts of the script that use them.
 
 ### Use regular code instead of AI for routine work
 
-Use regular code instead of AI for calculations, sorting, number formatting, and page layout. Code can repeat these jobs quickly and consistently. Let the model decide what to show, let the database calculate the values, and let templates put them on the page.
+In our dashboard, the model decides what to show, SQLite calculates the values, and templates put them on the page. Reading the schema, formatting numbers, and laying out the cards are done in code, which is fast, consistent, and uses no tokens.
 
 Our [`database.getSchemaMetadata()`](src/Database.ts) reads table names, column types, relationships, and row counts from SQLite. It also finds value ranges and a few sample values to help the model understand the data. Casai's `Template` turns that metadata into a compact [schema summary](src/templates/schema-summary.txt), without a model call:
 
@@ -145,7 +158,7 @@ const dashboardTemplate = create.Template.loadsTemplate({
 
 ### Define and check the output
 
-Tell the model what to return, then check it before using it. If the next step expects JSON with `html` and `script`, require those fields and check that they contain text. This catches missing fields and wrong data types. Check the calculation too: a query can run successfully and still answer the wrong question.
+Our card renderer must return JSON with two text fields, `html` and `script`. A metric query must return exactly one row with a `value` field. We check both before using them, which catches missing fields and wrong data types before they reach the page.
 
 Zod lets us define these checks in code. Casai's `ObjectGenerator` uses them and returns the answer in `object`. The [renderer prompt](src/templates/element-renderer.md) tells it how to build a card from a result preview:
 
@@ -161,11 +174,11 @@ const elementRenderer = create.ObjectGenerator.loadsTemplate({
 const { object: renderedCard } = await elementRenderer({ element });
 ```
 
-`renderedCard` contains the card's HTML body and JavaScript in checked fields. We also check plans. Our [`database.executeSql`](src/Database.ts) runs the query and returns rows as objects. For metrics, it checks that there is exactly one row with a `value` field and valid formatting options. Query or validation errors go to the repair step.
+`renderedCard` contains the card's HTML body and JavaScript in checked fields. The planners' cards are checked the same way. For metrics, [`database.executeSql`](src/Database.ts) checks the single row and its formatting options. Query or validation errors go to the repair step.
 
 ### Minimize context for each task
 
-Give each task only the information it needs. SQL generation needs the relevant tables and columns. A chart renderer needs a few rows to see the data's format. An insight needs enough data to support its conclusions. Smaller, focused prompts use fewer tokens, cost less, and are easier for simpler models to handle. Keep important details, such as how the tables connect.
+Each task gets only what it needs. Rendering gets up to 5 result rows, enough to see the field names and value types; insights get up to 25, enough to support their conclusions. The full results go to the page without passing through the model. SQL prompts include only the tables the card uses: in our test runs, they were about 1,100–1,300 tokens, while the full schema alone is about 6,000. Smaller prompts cost less and are easier for simpler models to handle, as long as they keep the details that matter, such as how the tables connect.
 
 Each planner lists the tables a card needs in `requiredTables`, including tables needed for joins. The helper selects their metadata for the [SQL generator](src/templates/sql-generator.md):
 
@@ -179,11 +192,11 @@ const { text: sql } = await sqlFromRequestGenerator({
 });
 ```
 
-Our planners see a short summary of the database structure. SQL prompts usually include only the needed tables. Our [`generatePreviewJson`](src/index.ts) takes the first few query rows, converts them to JSON, and adds a note saying how many rows were omitted. Rendering gets up to five rows to see the field names and value types; insights get up to 25 rows to support their conclusions. The full query results are passed to the page separately.
+The planners see the full schema summary, since they choose what to show. [`generatePreviewJson`](src/index.ts) takes the first rows of a result, converts them to JSON, and notes how many rows were omitted.
 
 ### Keep generated output short
 
-Ask for what the next step needs. For SQL, that is the query. For a chart, it is the chart's HTML and JavaScript. Leave out explanations, repeated data, and page markup that a template already provides. Shorter answers use fewer tokens and take less time to generate.
+Ask only for what the next step needs. The [SQL prompt](src/templates/sql-generator.md) asks for one SELECT with no explanation, so a draft is usually under 150 tokens. The renderer returns only a chart's markup and code, with no data, wrapper, or title, and that still comes to about 700–800 tokens. Output tokens cost five times as much as input tokens on GPT-6 Luna, and they set the pace: in our test runs, chart renders took 5–7 seconds, SQL drafts 1–4.
 
 The [page template](src/templates/dashboard-template.html) stores full query results under the card's ID when its JavaScript needs them. Generated JavaScript calls `getData(id)` to retrieve those rows and uses shared helpers to format numbers, currencies, and percentages. The model only needs to write the card's markup and logic. These instructions from the [renderer prompt](src/templates/element-renderer.md) keep its output short:
 
@@ -194,15 +207,15 @@ Use getData("<id>") and the page's formatting helpers.
 Do not repeat data, redefine helpers, or add script tags.
 ```
 
-The SQL prompt asks for one SELECT. The [insight prompt](src/templates/text-insight-generator.md) asks for three to five brief takeaways supported by the result excerpt, using a small set of HTML tags. Neither needs a separate explanation or a full page.
+The [insight prompt](src/templates/text-insight-generator.md) likewise asks only for three to five brief takeaways supported by the result excerpt, using a small set of HTML tags.
 
 ### Run independent work concurrently
 
-If two tasks don't need each other's results, run them at the same time. Three calls that each take four seconds take about twelve seconds in a row, or about four seconds together. Keep dependent steps in order: a chart needs its query results first. You still pay for all three calls. Model services may limit how many requests can run at once.
+Run tasks at the same time when they don't need each other's results. In our test runs, a dashboard made about 20 model calls, with up to 14 running at once: about a minute of model time finished in about 12 seconds. Dependent steps still run in order: a chart needs its query results first. Running calls together saves time, not money, and model services may limit how many requests can run at once.
 
 Our three planners work independently, choosing [the header and metrics](src/templates/header-metric-planner.md), [charts and tables](src/templates/visual-planner.md), and [insights and guide text](src/templates/insight-text-planner.md).
 
-A Casai `Script` exposes these components as functions through its `context`. In [Cascada](https://github.com/geleto/cascada/blob/master/docs/cascada/script.md#cascadas-execution-model), `var` names a result. These calls start together because none uses another's result:
+The `dashboardProcessor` script calls these planners through its `context`. In [Cascada](https://github.com/geleto/cascada/blob/master/docs/cascada/script.md#cascadas-execution-model), `var` names a result. These calls start together because none uses another's result:
 
 ```cascada
 // Cascada starts these independent calls together.
@@ -215,19 +228,19 @@ Cascada automatically waits when a step needs an earlier result. Separate cards 
 
 ### Stream results and process them as they arrive
 
-Stream complete work items and start processing each as it arrives. A planner can emit the first card while still planning the rest, allowing planning, querying, and rendering to overlap.
+Our planners stream their cards, and each card starts processing as soon as it arrives, so planning, querying, and rendering overlap. In one test run, five SQL and rendering calls started before the first planner finished, and 12 of the 13 started before the last one did.
 
-Our planners use Casai's `ObjectStreamer` with `output: 'array'`. Its `schema` describes each card, and its `elementStream` supplies complete cards as they are generated. Here, [`schemas.visualElement`](src/types.ts) requires a chart or table plan with a title, a description of the data to fetch, and the required table names:
+They use Casai's `ObjectStreamer` with `output: 'array'`. Its `schema` describes each card, and its `elementStream` supplies complete cards as they are generated. Here, [`schemas.visualElement`](src/types.ts) requires a chart or table plan with a title, a description of the data to fetch, and the required table names:
 
 ```typescript
-const visualPlanner = create.ObjectStreamer.loadsTemplate({
-  loader, prompt: 'visual-planner.md', context: input,
+const visualPlanner = create.ObjectStreamer.withTemplate({
+  prompt: 'User request: {{ userRequest }}', context: input,
   output: 'array', // Stream individual cards through elementStream.
   schema: schemas.visualElement,
 }, reasoningConfig);
 ```
 
-The other two planners use the same setup with their own prompts and schemas. The `visualPlan` result from the previous example gives us its stream through `elementStream`.
+The prompt is only the user's request. The planner's [instructions](src/templates/visual-planner.md) and the schema are sent before it, as the caching section explains. The other two planners use the same setup with their own instructions and schemas. The `visualPlan` result from the previous example gives us its stream through `elementStream`.
 
 The `for` loop below reads each card as it arrives, and its iterations can run concurrently. Our [`processElement`](src/orchestrator.cas) selects the card's schema, generates and runs its query when data is needed, repairs failures, and builds its content. It returns the plan with the finished content attached.
 
@@ -247,9 +260,7 @@ Cards stay in plan order even when they finish in a different order. The next se
 
 ### Fix failed tasks with retries
 
-Limited retries let you start with a simpler model and use a stronger model for repairs. Give the stronger model the failed output and feedback about what went wrong. Retry only the failed task, so you spend extra effort only on failures. Set a retry limit to control time and cost. If the task still fails, show the error and keep the parts that worked.
-
-Our SQL drafts use `fastConfig`, with reasoning set to `none`. For repairs, `reasoningConfig` uses the same model with reasoning set to `low`. Its [repair prompt](src/templates/sql-repair-generator.md) includes the failed query and the database's error message, or a note that no rows were returned:
+Our SQL drafts use `fastConfig`, with no reasoning. If a draft fails or returns no rows, a repair step retries it with `reasoningConfig`, at most twice. The extra reasoning is spent only on queries that need it; using a stronger model for repairs works the same way. The [repair prompt](src/templates/sql-repair-generator.md) includes the failed query and the database's error message, or a note that no rows were returned:
 
 ```typescript
 // Use more reasoning for repair attempts.
@@ -291,9 +302,9 @@ The page template checks `queryError` and displays a "Data unavailable" card wit
 
 ### Remove unnecessary model calls
 
-Skip a model call when you already have what you need. A metric value can go straight into a template. A model writing an insight can return HTML directly, saving a second call to format it. Static text needs no database query. Fewer calls mean less waiting and fewer tokens to pay for.
+Each card type gets only the calls it needs. Metrics skip the render call: their query returns the value and formatting options, and the page template displays them. Insights skip it too, because the insight writer returns HTML directly. Headers and guide text skip the query. In one test run with 10 cards, giving every card a query and a render call would have taken 20 calls; ours took 15.
 
-The script chooses the calls each element needs. The [insight prompt](src/templates/text-insight-generator.md) asks for HTML directly, so we need only a text generator:
+The [insight prompt](src/templates/text-insight-generator.md) asks for HTML directly, so we need only a text generator:
 
 ```typescript
 const textInsightGenerator = create.TextGenerator.loadsTemplate({
@@ -317,27 +328,39 @@ else
 endif
 ```
 
-Metrics go into the shared page template; insights are already HTML. In the full script, the query and repair steps run only when `element.usesData` is true, so headers and guide text skip them.
+In the full script, the query and repair steps run only when `element.usesData` is true.
 
 ### Cache reusable work: static first, dynamic last
 
-Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. Prompt caching can then reuse the static part even when later content changes, reducing input processing time and cost.
+Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. Prompt caching can then reuse the static part even when later content changes, reducing input cost and sometimes processing time.
 
-Our [SQL prompt](src/templates/sql-generator.md) follows this order: reusable rules first, then the dataset description, schema, and data request.
+Check your provider's rules. OpenAI's newer models, including GPT-6 Luna, [cache](https://developers.openai.com/api/docs/guides/prompt-caching) only prompts of at least 1,024 tokens. They look for a match only at the end of a message or at an explicit breakpoint, and keep a cached prompt for at least 30 minutes after its last use. Reading cached input costs a tenth of the normal input price, but writing it costs 1.25 times as much. Caching pays off only when the same text is sent again.
 
-We add a cache key to the shared configuration:
+Our planner prompts are the reusable part. Each is about 6,500 tokens: the planner's instructions, the dataset description, and the full schema summary, followed by the user's request. Everything before the request is the same for every question about the same database, so we end that part with a breakpoint. The prompts for SQL, rendering, and insights are about 1,000–1,500 tokens and differ for every card. The instructions they share are under 1,024 tokens, too short to cache even with a breakpoint.
+
+Calling a Casai component with a message array and a context puts those messages before its own prompt. This helper sends a planner's instructions and the schema that way, as a message that ends in a breakpoint. The script's `context` gets `cachePrefix(visualPlanner, 'visual-planner.md')` in place of `visualPlanner`, so the script calls it the same way:
 
 ```typescript
-const cachedFastConfig = create.Config({
-  providerOptions: {
-    openai: {
-      reasoningEffort: 'none',
-      promptCacheKey: 'smart-db-dashboard', // Keep this key stable across runs.
-    },
-  },
-}, fastConfig);
+const cacheBreakpoint = { openai: { promptCacheBreakpoint: { mode: 'explicit' } } };
+
+function cachePrefix(planner, template) {
+  const instructions = create.Template.loadsTemplate({ loader, template, context: input });
+  // The static part goes first, in its own message, ending in a breakpoint.
+  return async (context) => planner([{
+    role: 'user',
+    content: [{ type: 'text', text: await instructions(context), providerOptions: cacheBreakpoint }],
+  }], context);
+}
 ```
 
-Pass this configuration to the SQL and rendering components. Enable any required cache controls and check cache usage in the logs. Caching settings vary by provider.
+Our logs show the effect across two different questions about the Lahman database (simplified):
+
+```text
+Team eras, visual planner:      6,589 tokens in, 0 cache read + 6,586 cache write
+Player careers, visual planner: 6,593 tokens in, 6,559 cache read + 31 cache write
+Player careers, SQL draft:      1,338 tokens in, 0 cache read + 1,335 cache write
+```
+
+For the second question, only the request itself was new. The three planner calls cost about $0.003 with nothing cached and about $0.0008 with the shared part cached. That saves roughly $0.002 on every run against a database used in the last 30 minutes, whatever the question. The planner calls took about as long either way, because most of their time goes to writing the plan, so caching saves money rather than time here.
 
 We also reuse the downloaded SQLite file. Within a run, we read the database structure once and share it across tasks.

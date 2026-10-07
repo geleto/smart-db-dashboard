@@ -19,6 +19,5 @@ Tables:
 
 Dataset: {{ datasetName }}
 Description: {{ datasetDescription }}
-User request: {{ userRequest }}
 Schema summary:
 {{ fullSchemaSummary }}

@@ -11,6 +11,7 @@ import { writeFileSync } from 'fs';
 import { basicModel, advancedModel, basicProviderOptions, advancedProviderOptions } from './setup';
 import { printModelStatsSummary } from './model-logging';
 import { create, FileSystemLoader } from 'casai';
+import type { ModelMessage } from 'ai';
 import { fileURLToPath, pathToFileURL } from 'url';
 import path from 'path';
 import { createSchemaMetadataForTables, Database } from './Database';
@@ -91,28 +92,41 @@ function normalizeElementId(element: types.ProcessedElement): string {
 // ---------------------------------------------------------------------------
 // Planner LLMs - stream independent sections of the dashboard plan.
 // ---------------------------------------------------------------------------
+// Each planner's prompt is only the user request; its instructions and schema come before it.
 const plannerConfig = create.Config({
 	model: advancedModel,
 	providerOptions: advancedProviderOptions,
-	loader: templateLoader,
 	output: 'array',
 	context: input,
+	prompt: 'User request: {{ userRequest }}',
 });
 
-const headerMetricPlanner = create.ObjectStreamer.loadsTemplate({
-	prompt: 'header-metric-planner.md',
+const headerMetricPlanner = create.ObjectStreamer.withTemplate({
 	schema: schemas.headerMetricElement,
 }, plannerConfig);
 
-const visualPlanner = create.ObjectStreamer.loadsTemplate({
-	prompt: 'visual-planner.md',
+const visualPlanner = create.ObjectStreamer.withTemplate({
 	schema: schemas.visualElement,
 }, plannerConfig);
 
-const insightTextPlanner = create.ObjectStreamer.loadsTemplate({
-	prompt: 'insight-text-planner.md',
+const insightTextPlanner = create.ObjectStreamer.withTemplate({
 	schema: schemas.insightTextElement,
 }, plannerConfig);
+
+// The planner instructions and schema are the same for every request about a database.
+// Send them first, ending in a cache breakpoint, so a new request can reuse them.
+const cacheBreakpoint = { openai: { promptCacheBreakpoint: { mode: 'explicit' } } };
+
+function cachePrefix<R>(
+	planner: (messages: ModelMessage[], context: { fullSchemaSummary: string }) => R,
+	template: string,
+) {
+	const instructions = create.Template.loadsTemplate({ loader: templateLoader, template, context: input });
+	return async (context: { fullSchemaSummary: string }) => planner([{
+		role: 'user',
+		content: [{ type: 'text', text: await instructions(context), providerOptions: cacheBreakpoint }],
+	}], context);
+}
 
 // ---------------------------------------------------------------------------
 // SQL generator - tries a cheap first draft, then repairs with the advanced model if needed.
@@ -176,9 +190,9 @@ const schemaSummaryTemplate = create.Template.loadsTemplate({
 const dashboardProcessor = create.Script.loadsScript({
 	loader: scriptLoader,
 	context: {
-		headerMetricPlanner,
-		visualPlanner,
-		insightTextPlanner,
+		headerMetricPlanner: cachePrefix(headerMetricPlanner, 'header-metric-planner.md'),
+		visualPlanner: cachePrefix(visualPlanner, 'visual-planner.md'),
+		insightTextPlanner: cachePrefix(insightTextPlanner, 'insight-text-planner.md'),
 		sqlFromRequestGenerator,
 		sqlRepairGenerator,
 		textInsightGenerator,

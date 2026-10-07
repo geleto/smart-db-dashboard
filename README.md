@@ -75,8 +75,8 @@ hosted directly on GitHub Pages from the `main` branch. Each HTML file includes
 its data; an internet connection is needed to load Bootstrap and Chart.js from
 their CDNs.
 
-- [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/basebal-perfomance.html) — `npm start 5`
-- [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-perfomance.html) — `npm start 12`
+- [Baseball team performance across eras](https://geleto.github.io/smart-db-dashboard/examples/baseball-performance.html) — `npm start 5`
+- [Music catalog performance](https://geleto.github.io/smart-db-dashboard/examples/catalog-performance.html) — `npm start 12`
 - [Film catalog demand](https://geleto.github.io/smart-db-dashboard/examples/film-demand.html) — `npm start 2`
 - [Rental and payment activity](https://geleto.github.io/smart-db-dashboard/examples/rental-activity.html) — `npm start 1`
 - [Taxonomic coverage](https://geleto.github.io/smart-db-dashboard/examples/taxonomic-coverage.html) — `npm start 3`
