@@ -323,7 +323,9 @@ Metrics go into the shared page template; insights are already HTML. In the full
 
 Put unchanging instructions, reference material, and tool definitions first. Put changing questions, data, and timestamps last. Prompt caching can then reuse the static part even when later content changes, reducing input processing time and cost.
 
-For example, add an optional cache key to the shared configuration:
+Our [SQL prompt](src/templates/sql-generator.md) follows this order: reusable rules first, then the dataset description, schema, and data request.
+
+We add a cache key to the shared configuration:
 
 ```typescript
 const cachedFastConfig = create.Config({
